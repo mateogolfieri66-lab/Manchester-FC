@@ -987,7 +987,9 @@ function launchConfetti(){
    APP PRINCIPAL
    ============================================================ */
 const cfg=window.MFC_CONFIG||{};
-const configured=cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.includes("PEGAR_")&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.includes("PEGAR_");
+const hasConfig=cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.includes("PEGAR_")&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.includes("PEGAR_");
+const supabaseReady=!!(window.supabase&&typeof window.supabase.createClient==="function");
+const configured=!!(hasConfig&&supabaseReady);
 const sb=configured?window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
 const $=id=>document.getElementById(id);
 const money=n=>"$"+Number(n||0).toLocaleString("es-AR",{maximumFractionDigits:0});
@@ -1701,6 +1703,57 @@ boot();
       }, {once:true});
     }
   });
+})();
+</script>
+
+
+<script>
+/* MFC V5.1 — ROUTER DE EMERGENCIA.
+   Corre separado del script principal: aunque falle una consulta/API,
+   la navegación visual sigue funcionando. */
+(function(){
+  function byId(id){ return document.getElementById(id); }
+
+  function openView(id){
+    document.querySelectorAll(".view").forEach(function(v){
+      v.classList.remove("active");
+      v.style.display="none";
+    });
+    var target=byId(id);
+    if(target){
+      target.style.display="block";
+      target.classList.add("active");
+    }
+    document.querySelectorAll("[data-view]").forEach(function(b){
+      b.classList.toggle("active", b.getAttribute("data-view")===id);
+    });
+    try{ window.scrollTo({top:0,behavior:"smooth"}); }catch(_){}
+  }
+
+  document.addEventListener("click", function(ev){
+    var view=ev.target.closest("[data-view]");
+    if(view){
+      ev.preventDefault();
+      ev.stopPropagation();
+      openView(view.getAttribute("data-view"));
+      return;
+    }
+
+    var tab=ev.target.closest("[data-login-tab]");
+    if(tab){
+      ev.preventDefault();
+      document.querySelectorAll("[data-login-tab]").forEach(function(b){
+        b.classList.toggle("active", b===tab);
+      });
+      var which=tab.getAttribute("data-login-tab");
+      var staff=byId("staffLogin"), player=byId("playerLogin");
+      if(staff) staff.classList.toggle("hidden",which!=="staff");
+      if(player) player.classList.toggle("hidden",which!=="player");
+    }
+  }, true);
+
+  // Exponer por si algún botón inline lo necesita.
+  window.MFC_openView=openView;
 })();
 </script>
 
