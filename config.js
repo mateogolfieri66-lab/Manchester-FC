@@ -1,4 +1,4 @@
 window.MFC_CONFIG = {
-  SUPABASE_URL: "https://supabase.com/dashboard/project/utecbgrzbwjxhkbweeda",
+  SUPABASE_URL: "https://utecbgrzbwjxhkbweeda.supabase.com/",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0ZWNiZ3J6YndqeGhrYndlZWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzNTg2MjEsImV4cCI6MjEwNTkzNDYyMX0.Q2_UCo6MSTbLIdD6TMSBRcipyURQdYK2cAWJg4BpxDE"
 };
