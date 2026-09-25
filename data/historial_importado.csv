@@ -1,0 +1,43 @@
+rama,jugador,torneo,temporada,division,partidos,goles,amarillas,rojas,provisional
+masculino,Camino Facundo,Zona Mixta - Transición,2026,C,7,10,0,0,false
+masculino,Capalbo Franco,Zona Mixta - Transición,2026,C,7,1,0,1,false
+masculino,Del Pino Gustavo,Zona Mixta - Transición,2026,C,4,0,0,0,false
+masculino,Fontana Agustin,Zona Mixta - Transición,2026,C,4,0,1,0,false
+masculino,Gianelli Franco,Zona Mixta - Transición,2026,C,5,0,0,0,false
+masculino,Golfieri Mateo,Zona Mixta - Transición,2026,C,7,13,0,0,false
+masculino,Gomez Cristian,Zona Mixta - Transición,2026,C,5,2,0,0,false
+masculino,Gomez German,Zona Mixta - Transición,2026,C,7,7,0,0,false
+masculino,Oliva Santiago,Zona Mixta - Transición,2026,C,7,1,1,1,false
+masculino,Ortiz Mariano,Zona Mixta - Transición,2026,C,6,2,0,0,false
+masculino,Veliz Alejandro,Zona Mixta - Transición,2026,C,7,2,0,0,false
+masculino,Villalba Pablo,Zona Mixta - Transición,2026,C,7,0,0,0,false
+masculino,Zalazar Agustin,Zona Mixta - Transición,2026,C,7,0,0,1,false
+masculino,Camino Facundo,Zona Mixta - Clausura,2026,B,6,7,1,0,false
+masculino,Capalbo Franco,Zona Mixta - Clausura,2026,B,5,1,1,0,false
+masculino,Chavez Gonzalo,Zona Mixta - Clausura,2026,B,4,0,0,0,false
+masculino,Del Pino Gustavo,Zona Mixta - Clausura,2026,B,5,1,0,0,false
+masculino,Gianelli Franco,Zona Mixta - Clausura,2026,B,6,1,0,0,false
+masculino,Golfieri Mateo,Zona Mixta - Clausura,2026,B,6,5,0,0,false
+masculino,Gomez Cristian,Zona Mixta - Clausura,2026,B,7,1,1,0,false
+masculino,Gomez German,Zona Mixta - Clausura,2026,B,6,2,0,0,false
+masculino,Maidana Matias,Zona Mixta - Clausura,2026,B,7,3,0,0,false
+masculino,Montana Agus,Zona Mixta - Clausura,2026,B,7,3,2,0,false
+masculino,Oliva Santiago,Zona Mixta - Clausura,2026,B,6,8,2,0,false
+masculino,Ortiz Mariano,Zona Mixta - Clausura,2026,B,6,0,0,0,false
+masculino,Veliz Alejandro,Zona Mixta - Clausura,2026,B,6,0,0,0,false
+masculino,Zalazar Agustin,Zona Mixta - Clausura,2026,B,6,0,1,0,false
+femenino,Florentin Evelyn,Zona Mixta - snapshot femenino,2026,A,6,0,0,0,true
+femenino,Flores Celeste,Zona Mixta - snapshot femenino,2026,A,6,0,0,0,true
+femenino,Flores Micaela,Zona Mixta - snapshot femenino,2026,A,8,1,0,0,true
+femenino,Gonzalez Camila,Zona Mixta - snapshot femenino,2026,A,6,0,0,0,true
+femenino,Larrea Antonella,Zona Mixta - snapshot femenino,2026,A,5,0,0,0,true
+femenino,Maidana Agustina,Zona Mixta - snapshot femenino,2026,A,6,1,0,0,true
+femenino,Marquez Yazmin,Zona Mixta - snapshot femenino,2026,A,5,0,0,0,true
+femenino,Morales Yamila,Zona Mixta - snapshot femenino,2026,A,6,0,0,0,true
+femenino,Peralta Ara,Zona Mixta - snapshot femenino,2026,A,6,0,0,0,true
+femenino,Rea Natalia,Zona Mixta - snapshot femenino,2026,A,8,4,1,0,true
+femenino,Rolon Ticiana,Zona Mixta - snapshot femenino,2026,A,8,4,1,0,true
+femenino,Soto Isabel,Zona Mixta - snapshot femenino,2026,A,6,3,0,0,true
+femenino,Touriño Camil,Zona Mixta - snapshot femenino,2026,A,6,0,0,1,true
+femenino,Velazquez Micaela,Zona Mixta - snapshot femenino,2026,A,8,4,0,0,true
+femenino,Zarco Miriam,Zona Mixta - snapshot femenino,2026,A,6,2,0,0,true

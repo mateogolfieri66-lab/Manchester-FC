@@ -228,6 +228,13 @@ textarea{min-height:80px}
 .login-switch button{flex:1;font-size:12px}
 .login-pane{display:grid;gap:10px}
 
+.row-click{cursor:pointer}
+.linkish{background:none;border:0;color:var(--blue2);font-size:12px;padding:0;text-decoration:underline;justify-self:start}
+.scorer{display:flex;align-items:center;gap:10px}
+.scorer .rank{flex:none}
+.inline-form{display:grid;grid-template-columns:1.2fr 1.4fr 1fr 1fr auto;gap:8px;align-items:end}
+@media(max-width:820px){.inline-form{grid-template-columns:1fr}}
+
 /* ========== BOTTOM NAV ========== */
 .bottomnav{display:none}
 
@@ -246,7 +253,7 @@ textarea{min-height:80px}
   .layout{grid-template-columns:1fr}.sidebar{display:none}.content{padding:14px 12px 90px}.topbar-inner{padding:9px 12px}.brand-logo{width:40px;height:40px}.brand p{display:none}.user-pill{display:none}
   .grid4,.grid3,.grid2,.form-grid,.player-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hero{padding:20px 16px;border-radius:18px}.hero h2{font-size:32px}
   .login{padding:0}.login-shell{min-height:100vh;border:0;border-radius:0;grid-template-columns:1fr}.login-brand{padding:24px 18px;text-align:center}.login-brand img{width:110px}.login-brand h1{font-size:26px;margin-top:14px}.login-brand p{margin-inline:auto}.login-box{padding:20px 16px 32px}
-  .bottomnav{position:fixed;z-index:50;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(5,14,29,.94);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06);padding:5px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
+  .bottomnav{position:fixed;z-index:50;left:0;right:0;bottom:0;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:rgba(5,14,29,.94);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06);padding:5px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
   .bottomnav button{background:none;border:0;color:#7a97bc;font-size:9px;padding:5px 2px;border-radius:10px;transition:var(--transition);display:flex;flex-direction:column;align-items:center;gap:2px}
   .bottomnav button span{font-size:19px}.bottomnav button.active{color:#65b6ff;background:rgba(22,132,255,.08)}
 }
@@ -281,6 +288,11 @@ textarea{min-height:80px}
         <div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="organizador@email.com"></div>
         <div class="field"><label>Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
         <button class="btn" id="loginBtn">Ingresar</button>
+        <div class="actions" style="margin-top:0;justify-content:space-between">
+          <button class="linkish" id="signupBtn" type="button">Crear mi cuenta</button>
+          <button class="linkish" id="resetBtn" type="button">Olvidé mi contraseña</button>
+        </div>
+        <div class="notice" style="font-size:11px">Staff: creá tu cuenta con el email que te autorizó el administrador. El rol (organizador o DT de tu plantel) se asigna solo.</div>
         <div id="configWarning" class="notice hidden">Modo demo activo. Para datos reales, completá <b>config.js</b> con Supabase.</div>
       </div>
       <div class="login-pane hidden" id="playerLogin">
@@ -314,8 +326,9 @@ textarea{min-height:80px}
         <button data-view="matchday"><span class="i">⚽</span>Cerrar partido</button>
         <button data-view="players"><span class="i">👥</span>Plantel</button>
         <button data-view="tournaments"><span class="i">🏆</span>Torneos</button>
-        <button data-view="finance"><span class="i">▣</span>Finanzas</button>
-        <button data-view="fundraising"><span class="i">🎟</span>Rifas y fiestas</button>
+        <button data-view="finance" class="org-only"><span class="i">▣</span>Finanzas</button>
+        <button data-view="fundraising" class="org-only"><span class="i">🎟</span>Rifas y fiestas</button>
+        <button data-view="users" class="admin-only"><span class="i">🔑</span>Usuarios</button>
       </nav>
     </aside>
 
@@ -356,10 +369,13 @@ textarea{min-height:80px}
         </div>
         <div class="grid4">
           <div class="card kpi anim-fade-up stagger-1"><div class="label">Jugadores</div><div class="value" id="kpiPlayers" data-count="0">0</div><div class="sub blue">Activos</div></div>
-          <div class="card kpi anim-fade-up stagger-2"><div class="label">Deuda jugadores</div><div class="value red" id="kpiDebt" data-count="0">$0</div><div class="sub">Saldo pendiente</div></div>
-          <div class="card kpi anim-fade-up stagger-3"><div class="label">Caja neta</div><div class="value" id="kpiCash" data-count="0">$0</div><div class="sub green">Ingresos − gastos + adelantos</div></div>
-          <div class="card kpi anim-fade-up stagger-4"><div class="label">Aportes organizador</div><div class="value gold" id="kpiAdvances" data-count="0">$0</div><div class="sub">Dinero adelantado</div></div>
+          <div class="card kpi anim-fade-up stagger-2 org-only"><div class="label">Deuda jugadores</div><div class="value red" id="kpiDebt" data-count="0">$0</div><div class="sub">Saldo pendiente</div></div>
+          <div class="card kpi anim-fade-up stagger-3 org-only"><div class="label">Caja neta</div><div class="value" id="kpiCash" data-count="0">$0</div><div class="sub green">Ingresos − gastos + adelantos</div></div>
+          <div class="card kpi anim-fade-up stagger-4 org-only"><div class="label">Aportes organizador</div><div class="value gold" id="kpiAdvances" data-count="0">$0</div><div class="sub">Dinero adelantado</div></div>
         </div>
+
+        <div class="section-head"><div><h2>Goleadores</h2><p>Historial importado + partidos cerrados en el sistema.</p></div></div>
+        <div id="scorersGrid" class="grid3"></div>
 
         <div class="section-head"><div><h2>Situación deportiva</h2></div></div>
         <div class="grid3">
@@ -383,8 +399,8 @@ textarea{min-height:80px}
           </div>
         </div>
 
-        <div class="section-head"><div><h2>Costos de cancha</h2></div></div>
-        <div class="grid2">
+        <div class="section-head org-only"><div><h2>Costos de cancha</h2></div></div>
+        <div class="grid2 org-only">
           <div class="card anim-fade-up stagger-1">
             <div class="card-title"><h3>Zona Mixta</h3><span class="badge ok">$74.000</span></div>
             <div class="stat-strip">
@@ -409,7 +425,7 @@ textarea{min-height:80px}
         <div class="section-head"><div><h2>Partido del día</h2><p>Una sola carga actualiza resultado, estadísticas y deuda de cancha.</p></div></div>
         <div class="card anim-scale-in">
           <div class="form-grid">
-            <div class="field"><label>Rama</label><select id="matchBranch"><option value="masculino">Masculino</option><option value="femenino">Femenino</option></select></div>
+            <div class="field"><label>Plantel</label><select id="matchSquad"></select></div>
             <div class="field"><label>Torneo</label><select id="matchTournament"></select></div>
             <div class="field"><label>Fecha</label><input id="matchDate" type="date"></div>
             <div class="field"><label>Rival</label><input id="matchOpponent" placeholder="Nombre del rival"></div>
@@ -432,25 +448,24 @@ textarea{min-height:80px}
       <section id="players" class="view">
         <div class="section-head"><div><h2>Plantel</h2><p>Jugadores, DNI, deuda y estadísticas acumuladas.</p></div><button class="btn small" id="openPlayerForm">+ Jugador</button></div>
         <div id="newPlayerCard" class="card hidden" style="margin-bottom:12px">
-          <div class="card-title"><h3>Nuevo jugador/a</h3><button class="btn ghost small" id="closePlayerForm">Cerrar</button></div>
+          <div class="card-title"><h3 id="playerFormTitle">Nuevo jugador/a</h3><button class="btn ghost small" id="closePlayerForm">Cerrar</button></div>
           <div class="form-grid">
             <div class="field"><label>Nombre completo</label><input id="pName"></div>
             <div class="field"><label>DNI</label><input id="pDni" inputmode="numeric"></div>
-            <div class="field"><label>Rama</label><select id="pBranch"><option value="masculino">Masculino</option><option value="femenino">Femenino</option></select></div>
+            <div class="field"><label>Plantel</label><select id="pSquad"></select></div>
             <div class="field"><label>Dorsal</label><input id="pJersey" type="number" min="0"></input></div>
             <div class="field"><label>Teléfono</label><input id="pPhone"></div>
-            <div class="field"><label>Deuda inicial</label><input id="pDebt" type="number" min="0" value="0"></input></div>
-            <div class="field"><label>PIN de consulta</label><input id="pPin" inputmode="numeric" placeholder="4 a 8 dígitos"></div>
+            <div class="field org-only" id="pDebtField"><label>Deuda inicial</label><input id="pDebt" type="number" min="0" value="0"></input></div>
+            <div class="field"><label>PIN de consulta</label><input id="pPin" inputmode="numeric" placeholder="4 a 8 dígitos (vacío = no cambiar)"></div>
+            <div class="field"><label>Estado</label><select id="pActive"><option value="true">Activo/a</option><option value="false">Inactivo/a</option></select></div>
           </div>
           <div class="actions"><button class="btn" id="savePlayerBtn">Guardar jugador</button></div>
+          <p style="color:var(--muted);font-size:11px;margin-top:8px">Con DNI + PIN cada jugador/a puede consultar su deuda y estadísticas desde la pestaña «Jugador/a» del inicio.</p>
         </div>
-        <div class="tabs" id="playerTabs">
-          <button class="active" data-branch="all">Todos</button>
-          <button data-branch="masculino">Masculino</button>
-          <button data-branch="femenino">Femenino</button>
-        </div>
+        <div class="tabs" id="playerTabs"></div>
+        <p style="color:var(--muted);font-size:11px;margin-top:8px">Tocá un jugador/a para editar DNI, PIN, dorsal o plantel. * = incluye historial provisorio.</p>
         <div class="table-wrap" style="margin-top:10px">
-          <table><thead><tr><th>Jugador/a</th><th>Rama</th><th>DNI</th><th>PJ</th><th>Goles</th><th>TA</th><th>TR</th><th>Deuda</th></tr></thead><tbody id="playersBody"></tbody></table>
+          <table><thead><tr><th>Jugador/a</th><th>Plantel</th><th>DNI</th><th>PJ</th><th>Goles</th><th>TA</th><th>TR</th><th class="org-only">Deuda</th></tr></thead><tbody id="playersBody"></tbody></table>
         </div>
       </section>
 
@@ -475,6 +490,18 @@ textarea{min-height:80px}
             <p class="gold"><b>Femenino Manchester FC — Campeonas de Landen.</b></p>
           </div>
         </div>
+        <div class="section-head"><div><h3>Torneos cargados</h3><p>Los activos aparecen al cerrar un partido.</p></div></div>
+        <div class="card">
+          <div class="inline-form">
+            <div class="field"><label>Plantel</label><select id="tSquad"></select></div>
+            <div class="field"><label>Nombre</label><input id="tName" placeholder="Zona Mixta"></div>
+            <div class="field"><label>División</label><input id="tDivision" placeholder="A, B, C…"></div>
+            <div class="field"><label>Costo cancha</label><input id="tCost" type="number" min="0" value="74000"></div>
+            <button class="btn" id="saveTournamentBtn">+ Torneo</button>
+          </div>
+        </div>
+        <div id="tournamentsList" class="list" style="margin-top:10px"></div>
+
         <div class="section-head"><div><h3>Zona Mixta · Masculino B — Tabla actual</h3><p>Los primeros 3 están en zona de ascenso.</p></div></div>
         <div class="table-wrap">
           <table><thead><tr><th>#</th><th>Equipo</th><th>Pts</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th></tr></thead><tbody>
@@ -548,6 +575,21 @@ textarea{min-height:80px}
         <div id="eventsList" class="list"></div>
       </section>
 
+      <!-- ===== USERS (admin) ===== -->
+      <section id="users" class="view">
+        <div class="section-head"><div><h2>Usuarios y permisos</h2><p>Cargá el email de cada persona. Cuando crea su cuenta con ese email, recibe el rol automáticamente.</p></div></div>
+        <div class="notice">
+          <b>Administrador</b>: todo + usuarios · <b>Organizador</b>: todo el club (planteles, partidos, finanzas, rifas) ·
+          <b>DT</b>: solo su plantel (jugadores, partidos, torneos). El plantel del organizador es el que se preselecciona.
+        </div>
+        <div class="section-head"><div><h3>Staff autorizado</h3></div><button class="btn small" id="addInviteBtn">+ Persona</button></div>
+        <div id="invitesList" class="list"></div>
+        <div class="section-head"><div><h3>Cuentas sin autorizar</h3><p>Se registraron pero su email no está en la lista.</p></div></div>
+        <div id="pendingList" class="list"></div>
+        <div class="section-head"><div><h3>Planteles</h3></div></div>
+        <div id="squadsList" class="list"></div>
+      </section>
+
     </main>
   </div>
 
@@ -555,8 +597,10 @@ textarea{min-height:80px}
     <button class="active" data-view="home"><span>⌂</span>Inicio</button>
     <button data-view="matchday"><span>⚽</span>Partido</button>
     <button data-view="players"><span>👥</span>Plantel</button>
-    <button data-view="finance"><span>▣</span>Finanzas</button>
-    <button data-view="fundraising"><span>🎟</span>Eventos</button>
+    <button data-view="tournaments"><span>🏆</span>Torneos</button>
+    <button data-view="finance" class="org-only"><span>▣</span>Finanzas</button>
+    <button data-view="fundraising" class="org-only"><span>🎟</span>Eventos</button>
+    <button data-view="users" class="admin-only"><span>🔑</span>Usuarios</button>
   </nav>
 </div>
 
@@ -655,7 +699,7 @@ function countUp(el,target,prefix="",suffix=""){
   requestAnimationFrame(step);
 }
 
-let state={session:null,profile:null,players:[],playerTotals:[],tournaments:[],ledger:[],events:[],matchRoster:[],playerFilter:"all"};
+let state={session:null,profile:null,squads:[],players:[],playerTotals:[],tournaments:[],ledger:[],events:[],invites:[],profiles:[],matchRoster:[],playerFilter:"all"};
 
 /* ---------- DATOS DEMO — Planteles reales ---------- */
 const DEMO_PLAYERS=[
@@ -693,11 +737,18 @@ const DEMO_PLAYERS=[
   {id:"f14",full_name:"Blanco Romina",dni:"",branch:"femenino",jersey_number:15,current_debt:0,matches_played:2,goals:1,yellow_cards:0,red_cards:0,active:true}
 ];
 
+const DEMO_SQUADS=[
+  {id:"sq_m",code:"masculino",name:"Masculino",branch:"masculino",sort:1},
+  {id:"sq_f1",code:"fem_1",name:"Femenino · Micaela",branch:"femenino",sort:2},
+  {id:"sq_f2",code:"fem_2",name:"Femenino · Agustín",branch:"femenino",sort:3}
+];
+DEMO_PLAYERS.forEach(p=>{p.squad_id=p.branch==="masculino"?"sq_m":"sq_f1"});
+
 const DEMO_TOURNAMENTS=[
-  {id:"t1",name:"Zona Mixta",season:"2026",branch:"masculino",division:"B",venue_cost:74000,active:true},
-  {id:"t2",name:"Zona Mixta",season:"2026",branch:"femenino",division:"A",venue_cost:74000,active:true},
-  {id:"t3",name:"Landen",season:"2026",branch:"femenino",division:"A",venue_cost:64000,active:true},
-  {id:"t4",name:"Zona Mixta C",season:"2026",branch:"masculino",division:"C",venue_cost:74000,active:true}
+  {id:"t1",name:"Zona Mixta",season:"2026",branch:"masculino",squad_id:"sq_m",division:"B",venue_cost:74000,active:true},
+  {id:"t2",name:"Zona Mixta",season:"2026",branch:"femenino",squad_id:"sq_f1",division:"A",venue_cost:74000,active:true},
+  {id:"t3",name:"Landen",season:"2026",branch:"femenino",squad_id:"sq_f1",division:"A",venue_cost:64000,active:true},
+  {id:"t4",name:"Zona Mixta C",season:"2026",branch:"masculino",squad_id:"sq_m",division:"C",venue_cost:74000,active:true}
 ];
 
 const DEMO_LEDGER=[
@@ -706,6 +757,26 @@ const DEMO_LEDGER=[
   {id:"l3",type:"income",amount:7400,category:"Cuota",payment_method:"Mercado Pago",description:"Pago Oliva Santiago",entry_date:"2026-06-11",created_at:"2026-06-11"},
   {id:"l4",type:"expense",amount:74000,category:"Cancha",payment_method:"Efectivo",description:"Cancha Zona Mixta Fecha 7",entry_date:"2026-06-10",created_at:"2026-06-10"}
 ];
+
+/* ---------- Roles y planteles ---------- */
+const ROLE_LABEL={admin:"Administrador",organizer:"Organizador",coach:"DT",viewer:"Sin acceso"};
+const squadById=id=>state.squads.find(s=>s.id===id);
+const squadName=id=>squadById(id)?.name||"—";
+const role=()=>state.profile?.role||"viewer";
+const isOrg=()=>["admin","organizer"].includes(role());
+const isAdmin=()=>role()==="admin";
+/* Planteles que el usuario puede gestionar (RLS en Supabase aplica la misma regla) */
+function mySquads(){
+  if(isOrg())return state.squads;
+  return state.squads.filter(s=>s.id===state.profile?.squad_id);
+}
+function applyRoleVisibility(){
+  document.querySelectorAll(".org-only").forEach(el=>el.classList.toggle("hidden",!isOrg()));
+  document.querySelectorAll(".admin-only").forEach(el=>el.classList.toggle("hidden",!isAdmin()));
+}
+function squadOptions(list,selected){
+  return list.map(s=>`<option value="${s.id}" ${s.id===selected?"selected":""}>${esc(s.name)}</option>`).join("");
+}
 
 /* ---------- Login tabs ---------- */
 document.querySelectorAll("[data-login-tab]").forEach(b=>b.addEventListener("click",()=>{
@@ -721,6 +792,7 @@ function showView(id){
   if(target){/* small delay para reiniciar animación */requestAnimationFrame(()=>target.classList.add("active"))}
   document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
   if(id==="matchday")refreshMatchSetup();
+  if(id==="users")loadUsers();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
@@ -729,71 +801,119 @@ document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",(
 async function boot(){
   if(!configured){
     $("configWarning").classList.remove("hidden");
-    state.players=DEMO_PLAYERS;state.playerTotals=DEMO_PLAYERS;state.tournaments=DEMO_TOURNAMENTS;state.ledger=DEMO_LEDGER;state.events=[];
     $("loginBtn").textContent="Entrar en demo";
     return;
   }
+  sb.auth.onAuthStateChange(async(event)=>{
+    if(event==="PASSWORD_RECOVERY"){
+      const pw=prompt("Elegí tu nueva contraseña (mínimo 6 caracteres):");
+      if(pw){const{error}=await sb.auth.updateUser({password:pw});toast(error?error.message:"Contraseña actualizada.")}
+    }
+  });
   const{data:{session}}=await sb.auth.getSession();
   if(session){state.session=session;await enterApp();}
 }
 
 async function enterApp(){
   if(configured){
-    const{data:profile,error}=await sb.from("profiles").select("*").eq("id",state.session.user.id).single();
-    if(error){toast("Falta crear el perfil/rol del usuario en Supabase.");return;}
+    const{data:profile,error}=await sb.rpc("claim_profile");
+    if(error||!profile){toast("No se pudo leer tu perfil: "+esc(error?.message||"falta ejecutar supabase/setup.sql"));return;}
+    if(profile.role==="viewer"){
+      toast(`Tu cuenta (${esc(profile.email||"")}) todavía no está autorizada. Pedile al administrador que te habilite.`);
+      await sb.auth.signOut();state.session=null;return;
+    }
     state.profile=profile;
-    $("sessionRole").textContent=profile.role==="organizer"?"Organizador + DT":profile.role;
   }else{
-    state.profile={full_name:"Organizador Demo",role:"organizer"};$("sessionRole").textContent="Organizador + DT · DEMO";
+    state.profile={full_name:"Organizador Demo",role:"admin",squad_id:"sq_m"};
   }
   $("loginScreen").classList.add("hidden");$("appScreen").classList.remove("hidden");
+  applyRoleVisibility();
   await loadAll();
+  const sq=squadById(state.profile.squad_id);
+  $("sessionRole").textContent=`${state.profile.full_name} · ${ROLE_LABEL[role()]}${sq?" · "+sq.name:""}${configured?"":" · DEMO"}`;
 }
 
  $("loginBtn").addEventListener("click",async()=>{
   if(!configured){await enterApp();return}
   const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
+  if(!email||!password){toast("Completá email y contraseña.");return}
   const{data,error}=await sb.auth.signInWithPassword({email,password});
-  if(error){toast(error.message);return}
+  if(error){toast(error.message==="Invalid login credentials"?"Email o contraseña incorrectos.":esc(error.message));return}
   state.session=data.session;await enterApp();
+});
+ $("signupBtn").addEventListener("click",async()=>{
+  if(!configured){toast("Modo demo: no hay cuentas.");return}
+  const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
+  if(!email||password.length<6){toast("Escribí tu email y una contraseña de al menos 6 caracteres, y tocá «Crear mi cuenta».");return}
+  const{data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error){toast(esc(error.message));return}
+  if(data.session){state.session=data.session;await enterApp();}
+  else toast("Cuenta creada. Revisá tu email para confirmarla y después ingresá.");
+});
+ $("resetBtn").addEventListener("click",async()=>{
+  if(!configured){toast("Modo demo.");return}
+  const email=$("loginEmail").value.trim();if(!email){toast("Escribí tu email arriba.");return}
+  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  toast(error?esc(error.message):"Te enviamos un email para cambiar la contraseña.");
 });
  $("logoutBtn").addEventListener("click",async()=>{if(configured)await sb.auth.signOut();location.reload();});
 
 /* ---------- Consulta jugador ---------- */
+function lookupCard(p){
+  const debt=Number(p.current_debt)>0;
+  return `<div class="card" style="margin-top:10px;animation:scaleIn .4s ease both"><div class="card-title"><h3>${esc(p.full_name)}</h3><span class="badge ${debt?"bad":"ok"}">${debt?"Debe dinero":"Al día"}</span></div><div class="grid2"><div><small>Deuda</small><div class="amount ${debt?"red":"green"}">${money(p.current_debt)}</div></div><div><small>Estadísticas</small><div class="amount">${p.matches_played} PJ · ${p.goals} G · ${p.yellow_cards} TA · ${p.red_cards} TR</div></div></div></div>`;
+}
  $("publicLookupBtn").addEventListener("click",async()=>{
   const dni=$("publicDni").value.replace(/\D/g,""),pin=$("publicPin").value.trim();
   if(!configured){
     const p=DEMO_PLAYERS.find(x=>x.dni===dni);
-    if(!p){$("publicLookupResult").innerHTML='<div class="notice">DNI no encontrado en demo.</div>';return}
-    $("publicLookupResult").innerHTML=`<div class="card" style="margin-top:10px;animation:scaleIn .4s ease both"><div class="card-title"><h3>${esc(p.full_name)}</h3><span class="badge ${Number(p.current_debt)>0?"bad":"ok"}">${Number(p.current_debt)>0?"Debe dinero":"Al día"}</span></div><div class="grid2"><div><small>Deuda</small><div class="amount ${Number(p.current_debt)>0?"red":"green"}">${money(p.current_debt)}</div></div><div><small>Estadísticas</small><div class="amount">${p.matches_played} PJ · ${p.goals} G · ${p.yellow_cards} TA</div></div></div></div>`;
+    $("publicLookupResult").innerHTML=p?lookupCard(p):'<div class="notice">DNI no encontrado en demo.</div>';
     return;
   }
+  if(!dni||!pin){$("publicLookupResult").innerHTML='<div class="notice">Completá DNI y PIN.</div>';return}
   const{data,error}=await sb.rpc("player_self_lookup",{p_dni:dni,p_pin:pin});
   if(error){$("publicLookupResult").innerHTML=`<div class="notice">${esc(error.message)}</div>`;return}
   if(!data?.length){$("publicLookupResult").innerHTML='<div class="notice">DNI o PIN incorrecto.</div>';return}
-  const p=data[0];
-  $("publicLookupResult").innerHTML=`<div class="card" style="margin-top:10px;animation:scaleIn .4s ease both"><div class="card-title"><h3>${esc(p.full_name)}</h3><span class="badge ${Number(p.current_debt)>0?"bad":"ok"}">${Number(p.current_debt)>0?"Debe dinero":"Al día"}</span></div><div class="grid2"><div><small>Deuda</small><div class="amount ${Number(p.current_debt)>0?"red":"green"}">${money(p.current_debt)}</div></div><div><small>Estadísticas</small><div class="amount">${p.matches_played} PJ · ${p.goals} G</div></div></div></div>`;
+  $("publicLookupResult").innerHTML=lookupCard(data[0]);
 });
 
 /* ---------- Cargar datos ---------- */
 async function loadAll(){
   if(!configured){
-    state.players=DEMO_PLAYERS;state.playerTotals=DEMO_PLAYERS;state.tournaments=DEMO_TOURNAMENTS;state.ledger=DEMO_LEDGER;state.events=[];
+    state.squads=DEMO_SQUADS;state.players=DEMO_PLAYERS;state.playerTotals=DEMO_PLAYERS;state.tournaments=DEMO_TOURNAMENTS;state.ledger=DEMO_LEDGER;state.events=[];
     renderAll();return;
   }
-  const[playersQ,totalsQ,tourQ,ledgerQ,eventsQ]=await Promise.all([
-    sb.from("players").select("*").order("full_name"),
-    sb.from("player_totals").select("*").order("full_name"),
-    sb.from("tournaments").select("*").eq("active",true).order("name"),
-    sb.from("ledger").select("*").order("created_at",{ascending:false}).limit(30),
-    sb.from("fundraising_events").select("*").order("created_at",{ascending:false})
+  const org=isOrg();
+  const none=Promise.resolve({data:[]});
+  const[squadsQ,playersQ,totalsQ,tourQ,ledgerQ,eventsQ]=await Promise.all([
+    sb.from("squads").select("*").order("sort"),
+    sb.from("players").select("id,full_name,dni,branch,squad_id,phone,jersey_number,active,current_debt,notes,pin_set").order("full_name"),
+    sb.from("player_totals").select("*"),
+    sb.from("tournaments").select("*").order("season",{ascending:false}).order("name"),
+    org?sb.from("ledger").select("*").order("created_at",{ascending:false}).limit(30):none,
+    org?sb.from("fundraising_events").select("*").order("created_at",{ascending:false}):none
   ]);
-  if(playersQ.error)toast(playersQ.error.message);
-  state.players=playersQ.data||[];state.playerTotals=totalsQ.data||[];state.tournaments=tourQ.data||[];state.ledger=ledgerQ.data||[];state.events=eventsQ.data||[];
+  const err=[squadsQ,playersQ,totalsQ,tourQ,ledgerQ,eventsQ].find(q=>q.error);
+  if(err)toast(esc(err.error.message));
+  state.squads=squadsQ.data||[];
+  state.players=playersQ.data||[];
+  state.playerTotals=totalsQ.data||[];state.tournaments=tourQ.data||[];state.ledger=ledgerQ.data||[];state.events=eventsQ.data||[];
   renderAll();
 }
 
-function renderAll(){renderKpis();renderPlayers();renderFinance();renderEvents();populatePlayerSelects();refreshMatchSetup()}
+function renderAll(){renderKpis();renderSquadSelectors();renderPlayers();renderScorers();renderTournaments();renderFinance();renderEvents();populatePlayerSelects();refreshMatchSetup()}
+
+function renderSquadSelectors(){
+  const mine=mySquads(),def=state.profile?.squad_id&&mine.some(s=>s.id===state.profile.squad_id)?state.profile.squad_id:mine[0]?.id;
+  const keep=(id)=>$(id).value&&mine.some(s=>s.id===$(id).value)?$(id).value:def;
+  $("matchSquad").innerHTML=squadOptions(mine,keep("matchSquad"));
+  $("tSquad").innerHTML=squadOptions(mine,keep("tSquad"));
+  if(!$("pEditId")?.value)$("pSquad").innerHTML=squadOptions(mine,keep("pSquad"));
+  const tabs=[{id:"all",name:"Todos"},...mine];
+  if(!tabs.some(t=>t.id===state.playerFilter))state.playerFilter="all";
+  $("playerTabs").innerHTML=mine.length>1?tabs.map(t=>`<button data-squad="${t.id}" class="${t.id===state.playerFilter?"active":""}">${esc(t.name)}</button>`).join(""):"";
+  document.querySelectorAll("#playerTabs button").forEach(b=>b.addEventListener("click",()=>{state.playerFilter=b.dataset.squad;renderSquadSelectors();renderPlayers()}));
+}
 
 /* ---------- KPIs con count-up ---------- */
 function renderKpis(){
@@ -817,48 +937,103 @@ function renderKpis(){
   $("finBalance").className="value "+(cashVal>=0?"green":"red");
 }
 
+/* ---------- Goleadores por plantel ---------- */
+function renderScorers(){
+  const cards=mySquads().map((sq,i)=>{
+    const top=state.playerTotals.filter(t=>t.squad_id===sq.id&&Number(t.goals)>0).sort((a,b)=>b.goals-a.goals||a.full_name.localeCompare(b.full_name)).slice(0,5);
+    const body=top.length?top.map((t,j)=>`<div class="scorer" style="margin-top:7px"><span class="rank">${j+1}</span><span style="flex:1">${esc(t.full_name)}${t.has_provisional?" *":""}</span><b class="amount">${t.goals}</b></div>`).join(""):'<div class="empty">Sin goles cargados.</div>';
+    return `<div class="card anim-fade-up stagger-${i+1}"><div class="card-title"><h3>⚽ ${esc(sq.name)}</h3><span class="badge ok">Top 5</span></div>${body}</div>`;
+  }).join("");
+  $("scorersGrid").innerHTML=cards||'<div class="empty">Sin planteles.</div>';
+}
+
 /* ---------- Plantel ---------- */
 function renderPlayers(){
   const map=new Map(state.playerTotals.map(x=>[x.id,x]));
-  const rows=state.players.filter(p=>state.playerFilter==="all"||p.branch===state.playerFilter).map((p,idx)=>{
+  const org=isOrg();
+  const rows=state.players.filter(p=>state.playerFilter==="all"||p.squad_id===state.playerFilter).map((p,idx)=>{
     const t=map.get(p.id)||p;
     const debtClass=Number(p.current_debt)>0?"red":"green";
-    return `<tr style="animation:fadeInUp .4s ease both;animation-delay:${idx*30}ms"><td><b>${esc(p.full_name)}</b>${p.jersey_number?" <span style='color:var(--muted);font-size:10px'>#${p.jersey_number}</span>":""}</td><td>${p.branch==="masculino"?"♂ Masc.":"♀ Fem."}</td><td>${p.dni||"—"}</td><td>${t.matches_played||0}</td><td>${t.goals||0}</td><td>${t.yellow_cards||0}</td><td>${t.red_cards||0}</td><td class="${debtClass}"><b>${money(p.current_debt)}</b></td></tr>`;
+    return `<tr class="row-click" data-edit="${p.id}" style="animation:fadeInUp .4s ease both;animation-delay:${Math.min(idx,20)*30}ms;${p.active===false?"opacity:.5":""}"><td><b>${esc(p.full_name)}</b>${p.jersey_number?" <span style='color:var(--muted);font-size:10px'>#"+p.jersey_number+"</span>":""}${p.pin_set?" <span title='Tiene PIN' style='font-size:10px'>🔒</span>":""}</td><td>${esc(squadName(p.squad_id))}</td><td>${esc(p.dni||"—")}</td><td>${t.matches_played||0}</td><td>${t.goals||0}${t.has_provisional?"*":""}</td><td>${t.yellow_cards||0}</td><td>${t.red_cards||0}</td>${org?`<td class="${debtClass}"><b>${money(p.current_debt)}</b></td>`:""}</tr>`;
   }).join("");
-  $("playersBody").innerHTML=rows||'<tr><td colspan="8"><div class="empty">Sin jugadores.</div></td></tr>';
+  $("playersBody").innerHTML=rows||`<tr><td colspan="${org?8:7}"><div class="empty">Sin jugadores.</div></td></tr>`;
+  document.querySelectorAll("[data-edit]").forEach(r=>r.addEventListener("click",()=>openPlayerForm(state.players.find(p=>p.id===r.dataset.edit))));
 }
-document.querySelectorAll("#playerTabs button").forEach(b=>b.addEventListener("click",()=>{
-  document.querySelectorAll("#playerTabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");
-  state.playerFilter=b.dataset.branch;renderPlayers();
-}));
 
-/* ---------- Alta jugador ---------- */
- $("openPlayerForm").addEventListener("click",()=>$("newPlayerCard").classList.remove("hidden"));
+/* ---------- Alta / edición jugador ---------- */
+const PLAYER_FIELDS=["pName","pDni","pJersey","pPhone","pDebt","pPin"];
+function openPlayerForm(p){
+  if(!$("pEditId")){const h=document.createElement("input");h.type="hidden";h.id="pEditId";$("newPlayerCard").appendChild(h)}
+  $("pEditId").value=p?.id||"";
+  $("playerFormTitle").textContent=p?"Editar "+p.full_name:"Nuevo jugador/a";
+  $("pName").value=p?.full_name||"";$("pDni").value=p?.dni||"";$("pJersey").value=p?.jersey_number??"";
+  $("pPhone").value=p?.phone||"";$("pDebt").value=p?.current_debt??0;$("pPin").value="";
+  $("pActive").value=String(p?.active!==false);
+  const mine=mySquads();
+  $("pSquad").innerHTML=squadOptions(mine,p?.squad_id||(state.playerFilter!=="all"?state.playerFilter:state.profile?.squad_id)||mine[0]?.id);
+  $("pDebtField").querySelector("label").textContent=p?"Deuda actual":"Deuda inicial";
+  $("newPlayerCard").classList.remove("hidden");
+  $("newPlayerCard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+ $("openPlayerForm").addEventListener("click",()=>openPlayerForm(null));
  $("closePlayerForm").addEventListener("click",()=>$("newPlayerCard").classList.add("hidden"));
  $("savePlayerBtn").addEventListener("click",async()=>{
   if(!configured){toast("Conectá Supabase para guardar jugadores reales.");return}
-  const payload={full_name:$("pName").value.trim(),dni:$("pDni").value.replace(/\D/g,""),branch:$("pBranch").value,jersey_number:Number($("pJersey").value)||null,phone:$("pPhone").value.trim()||null,current_debt:Number($("pDebt").value)||0};
-  if(!payload.full_name||!payload.dni){toast("Nombre y DNI son obligatorios.");return}
-  const{data,error}=await sb.from("players").insert(payload).select().single();
-  if(error){toast(error.message);return}
-  const pin=$("pPin").value.trim();if(pin){const r=await sb.rpc("set_player_pin",{p_player_id:data.id,p_pin:pin});if(r.error)toast(r.error.message)}
-  toast("Jugador guardado");["pName","pDni","pJersey","pPhone","pDebt","pPin"].forEach(id=>$(id).value=id==="pDebt"?"0":"");await loadAll();
+  const editId=$("pEditId")?.value||"";
+  const dni=$("pDni").value.replace(/\D/g,"");
+  const payload={full_name:$("pName").value.trim(),dni:dni||null,squad_id:$("pSquad").value,jersey_number:$("pJersey").value===""?null:Number($("pJersey").value),phone:$("pPhone").value.trim()||null,active:$("pActive").value==="true"};
+  if(isOrg())payload.current_debt=Math.max(0,Number($("pDebt").value)||0);
+  if(!payload.full_name){toast("El nombre es obligatorio.");return}
+  if(dni&&!/^[0-9]{7,9}$/.test(dni)){toast("DNI inválido (7 a 9 números).");return}
+  const pin=$("pPin").value.trim();
+  if(pin&&!/^[0-9]{4,8}$/.test(pin)){toast("El PIN debe tener de 4 a 8 números.");return}
+  const q=editId?sb.from("players").update(payload).eq("id",editId).select().single():sb.from("players").insert(payload).select().single();
+  const{data,error}=await q;
+  if(error){toast(error.code==="23505"?"Ese DNI ya está cargado en otro jugador.":esc(error.message));return}
+  if(pin){const r=await sb.rpc("set_player_pin",{p_player_id:data.id,p_pin:pin});if(r.error)toast(esc(r.error.message))}
+  toast(editId?"Jugador actualizado":"Jugador guardado");
+  PLAYER_FIELDS.forEach(id=>$(id).value=id==="pDebt"?"0":"");$("pEditId").value="";
+  $("newPlayerCard").classList.add("hidden");await loadAll();
+});
+
+/* ---------- Torneos ---------- */
+function renderTournaments(){
+  const mine=new Set(mySquads().map(s=>s.id));
+  const list=state.tournaments.filter(t=>mine.has(t.squad_id));
+  $("tournamentsList").innerHTML=list.length?list.map(t=>`<div class="item"><div><b>${esc(t.name)}${t.division?" · "+esc(t.division):""}</b><div class="meta">${esc(squadName(t.squad_id))} · ${esc(t.season)} · cancha ${money(t.venue_cost)}</div></div><button class="btn small ${t.active?"secondary":"ghost"}" data-toggle-tour="${t.id}">${t.active?"Activo":"Finalizado"}</button></div>`).join(""):'<div class="empty">Sin torneos cargados para tu plantel.</div>';
+  document.querySelectorAll("[data-toggle-tour]").forEach(b=>b.addEventListener("click",async()=>{
+    if(!configured){toast("Modo demo.");return}
+    const t=state.tournaments.find(x=>x.id===b.dataset.toggleTour);
+    const{error}=await sb.from("tournaments").update({active:!t.active}).eq("id",t.id);
+    if(error){toast(esc(error.message));return}
+    toast(t.active?"Torneo marcado como finalizado":"Torneo reactivado");await loadAll();
+  }));
+}
+ $("saveTournamentBtn").addEventListener("click",async()=>{
+  if(!configured){toast("Conectá Supabase.");return}
+  const payload={squad_id:$("tSquad").value,name:$("tName").value.trim(),division:$("tDivision").value.trim()||null,venue_cost:Number($("tCost").value)||0,season:String(new Date().getFullYear()),active:true};
+  if(!payload.name||!payload.squad_id){toast("Falta nombre o plantel.");return}
+  const{error}=await sb.from("tournaments").insert(payload);
+  if(error){toast(esc(error.message));return}
+  toast("Torneo creado");$("tName").value="";$("tDivision").value="";await loadAll();
 });
 
 /* ---------- Match setup ---------- */
 function refreshMatchSetup(){
-  const branch=$("matchBranch").value;
-  const tours=state.tournaments.filter(t=>t.branch===branch);
-  $("matchTournament").innerHTML=tours.map(t=>`<option value="${t.id}" data-cost="${t.venue_cost}">${esc(t.name)}${t.division?" · "+esc(t.division):""}</option>`).join("");
-  if(tours.length)$("matchCost").value=tours[0].venue_cost||0;
+  const squad=$("matchSquad").value,prev=$("matchTournament").value;
+  const tours=state.tournaments.filter(t=>t.squad_id===squad&&t.active);
+  $("matchTournament").innerHTML=tours.length?tours.map(t=>`<option value="${t.id}" data-cost="${t.venue_cost}" ${t.id===prev?"selected":""}>${esc(t.name)}${t.division?" · "+esc(t.division):""}</option>`).join(""):'<option value="">Sin torneo (amistoso)</option>';
+  const o=$("matchTournament").selectedOptions[0];if(o&&o.dataset.cost)$("matchCost").value=o.dataset.cost;
+  updatePresentSummary();
 }
- $("matchBranch").addEventListener("change",()=>{refreshMatchSetup();state.matchRoster=[];$("matchPlayers").innerHTML="";updatePresentSummary()});
- $("matchTournament").addEventListener("change",()=>{const o=$("matchTournament").selectedOptions[0];if(o)$("matchCost").value=o.dataset.cost||0});
+ $("matchSquad").addEventListener("change",()=>{refreshMatchSetup();state.matchRoster=[];$("matchPlayers").innerHTML="";updatePresentSummary()});
+ $("matchTournament").addEventListener("change",()=>{const o=$("matchTournament").selectedOptions[0];if(o)$("matchCost").value=o.dataset.cost||0;updatePresentSummary()});
 
 /* ---------- Cargar plantel al partido ---------- */
  $("loadSquadBtn").addEventListener("click",()=>{
-  const branch=$("matchBranch").value;
-  state.matchRoster=state.players.filter(p=>p.branch===branch&&p.active!==false).map(p=>({player_id:p.id,name:p.full_name,jersey:p.jersey_number,played:true,goals:0,yellow_cards:0,red_cards:0,assists:0}));
+  const squad=$("matchSquad").value;
+  state.matchRoster=state.players.filter(p=>p.squad_id===squad&&p.active!==false).map(p=>({player_id:p.id,name:p.full_name,jersey:p.jersey_number,played:true,goals:0,yellow_cards:0,red_cards:0,assists:0}));
+  if(!state.matchRoster.length)toast("Este plantel no tiene jugadores activos. Cargalos en «Plantel».");
   renderMatchRoster();
 });
 
@@ -878,25 +1053,35 @@ function renderMatchRoster(){
 
 function updatePresentSummary(){
   const n=state.matchRoster.filter(p=>p.played).length,cost=Number($("matchCost").value)||0,each=n?cost/n:0;
+  const goals=state.matchRoster.reduce((a,p)=>a+(p.played?p.goals:0),0);
   $("presentCount").textContent=`${n} presentes`;
-  $("matchSummary").innerHTML=n?`Cancha: <b>${money(cost)}</b> · Aporte: <b>${money(each)}</b> por presente. Al cerrar el partido se genera la deuda automáticamente.`:"Cargá el plantel para empezar.";
+  $("matchSummary").innerHTML=n?`Cancha: <b>${money(cost)}</b> · Aporte: <b>${money(each)}</b> por presente · Goles cargados: <b>${goals}</b>. Al cerrar el partido se genera la deuda automáticamente.`:"Cargá el plantel para empezar.";
 }
  $("matchCost").addEventListener("input",updatePresentSummary);
 
 /* ---------- Guardar partido ---------- */
+let savingMatch=false;
  $("saveMatchBtn").addEventListener("click",async()=>{
   if(!configured){toast("Conectá Supabase para cerrar partidos reales.");return}
+  if(savingMatch)return;
   const opponent=$("matchOpponent").value.trim(),date=$("matchDate").value;
   if(!opponent||!date||!state.matchRoster.length){toast("Falta fecha, rival o plantel.");return}
-  const payload={tournament_id:$("matchTournament").value||null,branch:$("matchBranch").value,match_date:date,opponent,stage:$("matchStage").value,goals_for:Number($("matchGF").value)||0,goals_against:Number($("matchGA").value)||0,venue_cost:Number($("matchCost").value)||0,created_by:state.session.user.id};
-  const{data:m,error}=await sb.from("matches").insert(payload).select().single();if(error){toast(error.message);return}
-  const rows=state.matchRoster.map(p=>({match_id:m.id,player_id:p.player_id,played:p.played,goals:p.goals,yellow_cards:p.yellow_cards,red_cards:p.red_cards,assists:p.assists||0}));
-  const ins=await sb.from("match_players").insert(rows);if(ins.error){toast(ins.error.message);return}
-  const close=await sb.rpc("close_match",{p_match_id:m.id});if(close.error){toast(close.error.message);return}
-  /* confetti si ganaron */
-  if(payload.goals_for>payload.goals_against)launchConfetti();
-  toast("Partido cerrado: resultado, estadísticas y deuda actualizados.");
-  state.matchRoster=[];$("matchPlayers").innerHTML="";$("matchOpponent").value="";await loadAll();showView("home");
+  if(!state.matchRoster.some(p=>p.played)){toast("Marcá al menos un presente.");return}
+  const payload={tournament_id:$("matchTournament").value||null,squad_id:$("matchSquad").value,match_date:date,opponent,stage:$("matchStage").value,goals_for:Number($("matchGF").value)||0,goals_against:Number($("matchGA").value)||0,venue_cost:Number($("matchCost").value)||0,created_by:state.session.user.id};
+  const scored=state.matchRoster.reduce((a,p)=>a+(p.played?p.goals:0),0);
+  if(scored>payload.goals_for&&!confirm(`Cargaste ${scored} goles de jugadores pero el resultado dice ${payload.goals_for}. ¿Guardar igual?`))return;
+  savingMatch=true;$("saveMatchBtn").disabled=true;
+  try{
+    const{data:m,error}=await sb.from("matches").insert(payload).select().single();if(error){toast(esc(error.message));return}
+    const rows=state.matchRoster.map(p=>({match_id:m.id,player_id:p.player_id,played:p.played,goals:p.played?p.goals:0,yellow_cards:p.played?p.yellow_cards:0,red_cards:p.played?p.red_cards:0,assists:p.assists||0}));
+    const ins=await sb.from("match_players").insert(rows);
+    if(ins.error){await sb.from("matches").delete().eq("id",m.id);toast(esc(ins.error.message));return}
+    const close=await sb.rpc("close_match",{p_match_id:m.id});if(close.error){toast(esc(close.error.message));return}
+    /* confetti si ganaron */
+    if(payload.goals_for>payload.goals_against)launchConfetti();
+    toast("Partido cerrado: resultado, estadísticas y deuda actualizados.");
+    state.matchRoster=[];$("matchPlayers").innerHTML="";$("matchOpponent").value="";$("matchGF").value=0;$("matchGA").value=0;await loadAll();showView("home");
+  }finally{savingMatch=false;$("saveMatchBtn").disabled=false}
 });
 
 /* ---------- Finanzas ---------- */
@@ -907,17 +1092,18 @@ function renderFinance(){
   if(!configured){toast("Conectá Supabase para registrar finanzas.");return}
   const amount=Number($("fAmount").value)||0;if(amount<=0){toast("Ingresá un monto.");return}
   const payload={type:$("fType").value,amount,category:$("fCategory").value,payment_method:$("fMethod").value,description:$("fDescription").value.trim()||null,created_by:state.session.user.id};
-  const{error}=await sb.from("ledger").insert(payload);if(error){toast(error.message);return}
+  const{error}=await sb.from("ledger").insert(payload);if(error){toast(esc(error.message));return}
   toast("Movimiento guardado");$("fAmount").value="";$("fDescription").value="";await loadAll();
 });
 function populatePlayerSelects(){
-  $("payPlayer").innerHTML=state.players.map(p=>`<option value="${p.id}">${esc(p.full_name)} · debe ${money(p.current_debt)}</option>`).join("");
+  const list=[...state.players].sort((a,b)=>Number(b.current_debt)-Number(a.current_debt)||a.full_name.localeCompare(b.full_name));
+  $("payPlayer").innerHTML=list.map(p=>`<option value="${p.id}">${esc(p.full_name)} · ${esc(squadName(p.squad_id))} · debe ${money(p.current_debt)}</option>`).join("");
 }
  $("registerPaymentBtn").addEventListener("click",async()=>{
   if(!configured){toast("Conectá Supabase.");return}
   const id=$("payPlayer").value,amount=Number($("payAmount").value)||0;if(!id||amount<=0){toast("Elegí jugador y monto.");return}
   const{error}=await sb.rpc("register_player_payment",{p_player_id:id,p_amount:amount,p_category:"Pago jugador",p_method:$("payMethod").value,p_description:"Pago registrado desde panel"});
-  if(error){toast(error.message);return}
+  if(error){toast(esc(error.message));return}
   toast("Pago registrado y deuda actualizada");$("payAmount").value="";await loadAll();
 });
 
@@ -929,9 +1115,73 @@ function renderEvents(){
   if(!configured){toast("Conectá Supabase para guardar actividades.");return}
   const payload={name:$("evName").value.trim(),event_type:$("evType").value,goal_amount:Number($("evGoal").value)||0,raised_amount:Number($("evRaised").value)||0,expenses_amount:Number($("evExpenses").value)||0,event_date:$("evDate").value||null,distribution_rule:$("evRule").value,created_by:state.session.user.id};
   if(!payload.name){toast("Falta el nombre.");return}
-  const{error}=await sb.from("fundraising_events").insert(payload);if(error){toast(error.message);return}
+  const{error}=await sb.from("fundraising_events").insert(payload);if(error){toast(esc(error.message));return}
   toast("Actividad guardada");$("evName").value="";await loadAll();
 });
+
+/* ---------- Usuarios (solo admin) ---------- */
+async function loadUsers(){
+  if(!isAdmin())return;
+  if(!configured){state.invites=[];state.profiles=[];renderUsers();return}
+  const[inv,prof]=await Promise.all([
+    sb.from("staff_invites").select("*").order("created_at"),
+    sb.from("profiles").select("*").order("created_at")
+  ]);
+  if(inv.error||prof.error){toast(esc((inv.error||prof.error).message));return}
+  state.invites=inv.data;state.profiles=prof.data;renderUsers();
+}
+function renderUsers(){
+  const roleOpts=r=>["admin","organizer","coach"].map(x=>`<option value="${x}" ${x===r?"selected":""}>${ROLE_LABEL[x]}</option>`).join("");
+  const byEmail=new Map(state.profiles.map(p=>[p.email,p]));
+  $("invitesList").innerHTML=state.invites.length?state.invites.map(i=>{
+    const acc=i.email&&byEmail.get(i.email);
+    const status=!i.email?'<span class="badge warn">Falta email</span>':acc?'<span class="badge ok">Cuenta activa</span>':'<span class="badge warn">Esperando que cree la cuenta</span>';
+    return `<div class="card" data-invite="${i.id}">
+      <div class="card-title"><h3>${esc(i.full_name)}</h3>${status}</div>
+      <div class="inline-form">
+        <div class="field"><label>Nombre</label><input data-f="full_name" value="${esc(i.full_name)}"></div>
+        <div class="field"><label>Email</label><input data-f="email" type="email" value="${esc(i.email||"")}" placeholder="email@ejemplo.com"></div>
+        <div class="field"><label>Rol</label><select data-f="role">${roleOpts(i.role)}</select></div>
+        <div class="field"><label>Plantel</label><select data-f="squad_id"><option value="">—</option>${squadOptions(state.squads,i.squad_id)}</select></div>
+        <div class="actions" style="margin:0"><button class="btn small" data-save-invite>Guardar</button><button class="btn small red" data-del-invite>Quitar</button></div>
+      </div></div>`;
+  }).join(""):'<div class="empty">Sin personas cargadas.</div>';
+  document.querySelectorAll("[data-invite]").forEach(card=>{
+    const id=card.dataset.invite,val=f=>card.querySelector(`[data-f="${f}"]`).value.trim();
+    card.querySelector("[data-save-invite]").addEventListener("click",async()=>{
+      const row={full_name:val("full_name"),email:val("email").toLowerCase()||null,role:val("role"),squad_id:val("squad_id")||null};
+      if(!row.full_name){toast("Falta el nombre.");return}
+      if(row.role==="coach"&&!row.squad_id){toast("Un DT necesita un plantel.");return}
+      const prev=state.invites.find(x=>x.id===id);
+      if(prev?.email&&prev.email===state.profile.email&&(row.role!=="admin"||row.email!==prev.email)&&!confirm("Te estás quitando el acceso de administrador. ¿Seguro?"))return;
+      const q=id.startsWith("new")?sb.from("staff_invites").insert(row):sb.from("staff_invites").update(row).eq("id",id);
+      const{error}=await q;if(error){toast(error.code==="23505"?"Ese email ya está en la lista.":esc(error.message));return}
+      toast("Guardado. Si ya tenía cuenta, el permiso se aplica al volver a entrar.");loadUsers();
+    });
+    card.querySelector("[data-del-invite]").addEventListener("click",async()=>{
+      if(id.startsWith("new")){card.remove();return}
+      if(!confirm("¿Quitar el acceso de esta persona?"))return;
+      const{error}=await sb.from("staff_invites").delete().eq("id",id);if(error){toast(esc(error.message));return}
+      toast("Acceso quitado");loadUsers();
+    });
+  });
+  const invited=new Set(state.invites.map(i=>i.email).filter(Boolean));
+  const pending=state.profiles.filter(p=>!invited.has(p.email));
+  $("pendingList").innerHTML=pending.length?pending.map(p=>`<div class="item"><div><b>${esc(p.full_name)}</b><div class="meta">${esc(p.email||"")}</div></div><button class="btn small" data-authorize="${esc(p.email||"")}" data-name="${esc(p.full_name)}">Autorizar</button></div>`).join(""):'<div class="empty">No hay cuentas pendientes.</div>';
+  document.querySelectorAll("[data-authorize]").forEach(b=>b.addEventListener("click",()=>addInviteCard(b.dataset.name,b.dataset.authorize)));
+  $("squadsList").innerHTML=state.squads.map(s=>`<div class="item"><div><b>${esc(s.name)}</b><div class="meta">${s.branch==="masculino"?"Masculino":"Femenino"} · ${state.players.filter(p=>p.squad_id===s.id).length} jugadores</div></div><button class="btn small secondary" data-rename-squad="${s.id}">Renombrar</button></div>`).join("");
+  document.querySelectorAll("[data-rename-squad]").forEach(b=>b.addEventListener("click",async()=>{
+    const s=squadById(b.dataset.renameSquad),name=prompt("Nuevo nombre del plantel:",s.name);
+    if(!name||!name.trim())return;
+    const{error}=await sb.from("squads").update({name:name.trim()}).eq("id",s.id);if(error){toast(esc(error.message));return}
+    toast("Plantel renombrado");await loadAll();loadUsers();
+  }));
+}
+function addInviteCard(name="",email=""){
+  state.invites.push({id:"new"+Date.now(),full_name:name,email,role:"coach",squad_id:null});
+  renderUsers();
+}
+ $("addInviteBtn").addEventListener("click",()=>addInviteCard("Nueva persona",""));
 
 /* ---------- Fecha de hoy por defecto ---------- */
 const today=new Date().toISOString().split("T")[0];
