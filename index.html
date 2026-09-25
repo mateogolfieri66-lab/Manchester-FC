@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071831">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>Manchester F.C. — Gestión del Club</title>
+<style>
+/* ========== VARIABLES ========== */
+:root{
+  --bg:#040c1a;--bg2:#071831;--panel:#0b1f40;--panel2:#102957;--line:#244a7b;
+  --text:#f0f6ff;--muted:#8ea8ca;--blue:#1684ff;--blue2:#67b5ff;--cyan:#48d9ff;
+  --green:#26db84;--red:#ff5266;--gold:#ffc94d;--violet:#9b73ff;
+  --shadow:0 22px 70px rgba(0,0,0,.35);
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --transition:.4s cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);scroll-behavior:smooth}
+body{color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;
+background:radial-gradient(ellipse at 85% -10%,rgba(26,120,255,.18),transparent 35%),
+radial-gradient(ellipse at 10% 20%,rgba(48,216,255,.06),transparent 30%),
+linear-gradient(180deg,#071831,#040c1a 70%)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:none;background:none;color:inherit}
+a{color:var(--blue2);text-decoration:none}
+img{display:block;max-width:100%}
+.hidden{display:none!important}
+
+/* ========== CANVAS PARTÍCULAS ========== */
+#particleCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+
+/* ========== ANIMACIONES GLOBALES ========== */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(22,132,255,.3)}50%{box-shadow:0 0 24px rgba(22,132,255,.6)}}
+@keyframes countUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes borderGlow{0%,100%{border-color:rgba(82,139,210,.25)}50%{border-color:rgba(82,139,210,.55)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes rotateGlow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+@keyframes progressBar{from{width:0}to{width:var(--target)}}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
+@keyframes heroGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-120px) rotate(720deg);opacity:0}}
+
+.anim-fade-up{animation:fadeInUp .6s var(--transition) both}
+.anim-scale-in{animation:scaleIn .5s var(--transition) both}
+.stagger-1{animation-delay:.06s}.stagger-2{animation-delay:.12s}.stagger-3{animation-delay:.18s}.stagger-4{animation-delay:.24s}
+.stagger-5{animation-delay:.3s}.stagger-6{animation-delay:.36s}.stagger-7{animation-delay:.42s}.stagger-8{animation-delay:.48s}
+
+/* ========== SHELL ========== */
+.shell{position:relative;z-index:1;min-height:100vh}
+
+/* ========== GLASS ========== */
+.glass{background:linear-gradient(180deg,rgba(17,44,88,.88),rgba(7,24,51,.92));border:1px solid rgba(82,139,210,.28);box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+
+/* ========== TOPBAR ========== */
+.topbar{position:sticky;top:0;z-index:40;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(5,13,28,.82);backdrop-filter:blur(22px);transition:var(--transition)}
+.topbar-inner{max-width:1480px;margin:auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-logo{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.7);background:#071831;transition:var(--transition)}
+.brand-logo:hover{transform:rotate(10deg) scale(1.08);border-color:var(--blue)}
+.brand h1{margin:0;font-size:16px;letter-spacing:.14em;font-family:var(--font-display);font-weight:700}
+.brand p{margin:2px 0 0;font-size:10px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
+.userbar{display:flex;align-items:center;gap:9px}
+.user-pill{font-size:11px;color:#c8dcf6;border:1px solid #294f80;background:#0a2143;border-radius:999px;padding:7px 12px;animation:borderGlow 4s ease infinite}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid #294f80;background:#0a2143;color:#dceaff;display:grid;place-items:center;transition:var(--transition)}
+.icon-btn:hover{background:#123663;border-color:#3a6fa0;transform:scale(1.08)}
+
+/* ========== LAYOUT ========== */
+.layout{max-width:1480px;margin:auto;display:grid;grid-template-columns:230px minmax(0,1fr)}
+.sidebar{position:sticky;top:68px;height:calc(100vh - 68px);padding:16px 12px;border-right:1px solid rgba(255,255,255,.06);overflow-y:auto}
+.nav{display:grid;gap:6px}
+.nav button{width:100%;display:flex;align-items:center;gap:11px;border:1px solid transparent;background:transparent;color:#9fb6d5;text-align:left;padding:11px 12px;border-radius:13px;transition:var(--transition);position:relative;overflow:hidden}
+.nav button::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(22,132,255,.08),transparent);opacity:0;transition:var(--transition)}
+.nav button.active,.nav button:hover{background:linear-gradient(90deg,#112c5b,#0d2449);border-color:#28558d;color:#fff}
+.nav button.active::after{opacity:1}
+.nav button.active{animation:glow 3s ease infinite}
+.nav .i{width:24px;text-align:center;font-size:17px}
+
+/* ========== CONTENT ========== */
+.content{padding:22px 24px 110px;min-width:0}
+.view{display:none;opacity:0;transform:translateY(12px)}
+.view.active{display:block;animation:fadeInUp .5s var(--transition) forwards}
+
+/* ========== HERO ========== */
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:32px;background:linear-gradient(115deg,rgba(11,44,92,.96),rgba(5,17,39,.94));border:1px solid #285489;box-shadow:var(--shadow)}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 0 54%,rgba(17,121,255,.07) 55% 56%,transparent 57%),repeating-linear-gradient(135deg,transparent 0 16px,rgba(255,255,255,.015) 16px 17px);animation:heroGradient 12s ease infinite;background-size:200% 200%}
+.hero::after{content:"";position:absolute;width:500px;height:500px;border-radius:50%;right:-200px;top:-300px;border:90px solid rgba(42,135,255,.06);animation:float 8s ease infinite}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);gap:24px;align-items:center}
+.hero h2{margin:0 0 12px;font-size:clamp(30px,4.5vw,58px);line-height:.98;letter-spacing:-.03em;font-family:var(--font-display);font-weight:700}
+.hero p{max-width:720px;color:#b7cce7;line-height:1.6;font-size:14px}
+.hero-logo{display:flex;justify-content:center}
+.hero-logo img{width:min(260px,65vw);border-radius:50%;filter:drop-shadow(0 20px 40px rgba(0,0,0,.45));animation:float 6s ease infinite}
+
+/* ========== CHIPS ========== */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.chip{border-radius:999px;padding:6px 10px;font-size:10px;font-weight:800;border:1px solid #315d92;background:#0b2449;transition:var(--transition)}
+.chip:hover{transform:translateY(-2px);border-color:#4a80b8}
+.chip.green{color:#6af0ad}.chip.gold{color:#ffdb79}.chip.blue{color:#78c0ff}.chip.violet{color:#c9a8ff}
+
+/* ========== SECCIONES ========== */
+.section-head{display:flex;justify-content:space-between;gap:14px;align-items:end;margin:24px 0 12px}
+.section-head h2,.section-head h3{margin:0;font-family:var(--font-display)}
+.section-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
+
+/* ========== GRIDS ========== */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+
+/* ========== CARDS ========== */
+.card{border-radius:18px;padding:16px;background:linear-gradient(180deg,rgba(15,41,83,.9),rgba(7,25,53,.92));border:1px solid #234a7d;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:0;transition:var(--transition);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(22,132,255,.04),transparent 60%);opacity:0;transition:var(--transition)}
+.card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.28);border-color:#2e5e99}
+.card:hover::before{opacity:1}
+
+/* ========== KPI ========== */
+.kpi .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.kpi .value{font-size:clamp(24px,2.8vw,34px);font-weight:950;margin:6px 0 3px;font-family:var(--font-display);animation:countUp .6s ease both}
+.kpi .sub{font-size:11px}
+.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}.blue{color:#70b9ff}.violet{color:var(--violet)}
+
+.card-title{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+.card-title h3{font-size:15px;margin:0;font-family:var(--font-display)}
+
+/* ========== BADGES ========== */
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;white-space:nowrap;transition:var(--transition)}
+.badge.ok{color:#68efac;background:rgba(38,219,132,.1);border:1px solid rgba(38,219,132,.3)}
+.badge.warn{color:#ffd671;background:rgba(255,201,77,.1);border:1px solid rgba(255,201,77,.25)}
+.badge.bad{color:#ff8b97;background:rgba(255,82,102,.1);border:1px solid rgba(255,82,102,.3)}
+
+/* ========== PROGRESS ========== */
+.progress{height:7px;border-radius:999px;background:#19385f;overflow:hidden}
+.progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#1677ff,#64c4ff);animation:progressBar 1.2s var(--transition) both}
+
+/* ========== STATS ========== */
+.stat-strip{display:flex;flex-wrap:wrap;gap:8px}
+.stat-box{flex:1 1 130px;border:1px solid #214c7f;border-radius:13px;background:#071c3a;padding:11px;transition:var(--transition)}
+.stat-box:hover{border-color:#3166a0;transform:translateY(-2px)}
+.stat-box small{color:var(--muted);font-size:10px}
+.stat-box b{display:block;font-size:18px;margin-top:3px;font-family:var(--font-display)}
+
+/* ========== TABLAS ========== */
+.table-wrap{overflow:auto;border:1px solid #214976;border-radius:15px;background:#071a36}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:12px}
+th{font-size:9px;color:#82a1ca;text-transform:uppercase;letter-spacing:.1em;background:#0a2145;font-weight:700}
+tr{transition:var(--transition)}
+tr:hover td{background:rgba(22,132,255,.04)}
+.promo td{background:rgba(38,219,132,.08)}
+.rank{display:grid;place-items:center;width:27px;height:27px;border-radius:8px;background:#183761;font-weight:900;font-size:11px}
+.promo .rank{background:#1ab865;color:#fff}
+
+/* ========== BOTONES ========== */
+.btn{border:0;border-radius:12px;padding:10px 14px;color:#fff;background:linear-gradient(135deg,#0870ff,#1593ff);font-weight:800;transition:var(--transition);position:relative;overflow:hidden;font-size:13px}
+.btn::after{content:"";position:absolute;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.25);transform:scale(0);animation:none}
+.btn:active::after{width:200px;height:200px;animation:ripple .5s ease-out}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(22,132,255,.3)}
+.btn.secondary{background:#0a2347;border:1px solid #305b91;color:#dcecff}
+.btn.ghost{background:transparent;border:1px solid #2d5384;color:#bdd2ed}
+.btn.red{background:linear-gradient(135deg,#5a1a24,#8b3040);border:1px solid #8b3040}
+.btn.small{padding:7px 10px;font-size:11px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+/* ========== FORMULARIOS ========== */
+label{font-size:10px;color:#9eb5d4;font-weight:700;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px}
+input,select,textarea{width:100%;border-radius:11px;border:1px solid #2a4f80;background:#071b38;color:white;padding:10px 11px;outline:none;font-size:13px;transition:var(--transition)}
+input:focus,select:focus,textarea:focus{border-color:#3297ff;box-shadow:0 0 0 3px rgba(50,151,255,.12)}
+textarea{min-height:80px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.field{display:grid;gap:4px}
+.field.full{grid-column:1/-1}
+
+/* ========== TABS ========== */
+.tabs{display:flex;flex-wrap:wrap;gap:7px}
+.tabs button{border:1px solid #28507f;background:#0a2145;color:#9db5d5;padding:8px 11px;border-radius:11px;transition:var(--transition);font-size:12px}
+.tabs button.active{background:linear-gradient(135deg,#1478ff,#0d5fd4);border-color:#268eff;color:#fff;box-shadow:0 4px 14px rgba(22,132,255,.25)}
+.tabs button:hover:not(.active){background:#123663;border-color:#3a6fa0}
+
+/* ========== LISTAS ========== */
+.list{display:grid;gap:8px}
+.item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:14px;border:1px solid #234a7c;background:#071b38;transition:var(--transition)}
+.item:hover{border-color:#2e5e99;transform:translateX(4px)}
+.item .meta{font-size:10px;color:#8da5c6;margin-top:3px}
+.amount{font-size:17px;font-weight:950;font-family:var(--font-display)}
+
+/* ========== NOTICE / EMPTY ========== */
+.notice{border-left:4px solid #2189ff;background:#0a2246;border-radius:11px;padding:11px 13px;color:#bed0e8;font-size:12px;line-height:1.55}
+.empty{border:1px dashed #36577d;border-radius:13px;padding:16px;text-align:center;color:#8ca5c5;font-size:13px}
+
+/* ========== MATCH PLAYERS ========== */
+.player-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.player-card{border:1px solid #244d80;background:#071b38;border-radius:14px;padding:11px;transition:var(--transition)}
+.player-card:hover{border-color:#3070b0;transform:translateY(-2px)}
+.player-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.player-top strong{font-size:12px}
+.counters{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.counter{background:#0d2850;border:1px solid #275588;border-radius:10px;padding:7px;text-align:center}
+.counter small{display:block;color:#84a1c7;font-size:8px;text-transform:uppercase;letter-spacing:.05em}
+.counter-row{display:flex;justify-content:space-between;align-items:center;margin-top:4px;gap:4px}
+.counter button{width:24px;height:24px;border-radius:7px;border:1px solid #38679d;background:#123663;color:#fff;font-size:13px;display:grid;place-items:center;transition:var(--transition)}
+.counter button:hover{background:#1d4a80;transform:scale(1.1)}
+.counter b{font-size:15px;font-family:var(--font-display)}
+
+/* ========== LOGIN ========== */
+.login{min-height:100vh;display:grid;place-items:center;padding:20px;position:relative;z-index:2}
+.login-shell{width:min(1080px,100%);display:grid;grid-template-columns:1.1fr .9fr;border-radius:26px;overflow:hidden;border:1px solid #244f82;background:#07172f;box-shadow:0 34px 100px rgba(0,0,0,.48);animation:scaleIn .6s var(--transition) both}
+.login-brand{padding:36px;position:relative;overflow:hidden;background:radial-gradient(circle at 30% 30%,rgba(32,137,255,.16),transparent 30%),linear-gradient(145deg,#0b2c60,#061329)}
+.login-brand::after{content:"";position:absolute;inset:auto -100px -120px auto;width:400px;height:400px;border-radius:50%;border:70px solid rgba(67,153,255,.06);animation:float 10s ease infinite}
+.login-brand img{width:170px;border-radius:50%;filter:drop-shadow(0 18px 30px rgba(0,0,0,.45));position:relative;z-index:2;animation:float 6s ease infinite}
+.login-brand h1{position:relative;z-index:2;font-size:38px;margin:22px 0 6px;font-family:var(--font-display);font-weight:700}
+.login-brand p{position:relative;z-index:2;color:#afc6e4;line-height:1.55;max-width:480px;font-size:13px}
+.login-box{padding:32px;display:grid;align-content:center;gap:16px}
+.login-box h2{margin:0;font-family:var(--font-display)}
+.login-switch{display:flex;gap:7px}
+.login-switch button{flex:1;font-size:12px}
+.login-pane{display:grid;gap:10px}
+
+/* ========== BOTTOM NAV ========== */
+.bottomnav{display:none}
+
+/* ========== TOAST ========== */
+.toast{position:fixed;right:18px;bottom:18px;z-index:100;background:#0e2b56;border:1px solid #31639b;border-radius:13px;padding:11px 14px;box-shadow:var(--shadow);max-width:330px;font-size:13px;animation:toastIn .4s var(--transition) both}
+.toast.out{animation:toastOut .3s ease both}
+.toast-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 13px 13px;background:var(--blue);animation:toastBar 2.6s linear both}
+@keyframes toastBar{from{width:100%}to{width:0}}
+
+/* ========== CONFETTI ========== */
+.confetti-piece{position:fixed;z-index:200;width:8px;height:8px;border-radius:2px;animation:confetti 1.2s ease both;pointer-events:none}
+
+/* ========== RESPONSIVE ========== */
+@media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr 1fr}.hero-grid{grid-template-columns:1fr}.hero-logo{display:none}}
+@media(max-width:820px){
+  .layout{grid-template-columns:1fr}.sidebar{display:none}.content{padding:14px 12px 90px}.topbar-inner{padding:9px 12px}.brand-logo{width:40px;height:40px}.brand p{display:none}.user-pill{display:none}
+  .grid4,.grid3,.grid2,.form-grid,.player-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hero{padding:20px 16px;border-radius:18px}.hero h2{font-size:32px}
+  .login{padding:0}.login-shell{min-height:100vh;border:0;border-radius:0;grid-template-columns:1fr}.login-brand{padding:24px 18px;text-align:center}.login-brand img{width:110px}.login-brand h1{font-size:26px;margin-top:14px}.login-brand p{margin-inline:auto}.login-box{padding:20px 16px 32px}
+  .bottomnav{position:fixed;z-index:50;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(5,14,29,.94);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06);padding:5px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
+  .bottomnav button{background:none;border:0;color:#7a97bc;font-size:9px;padding:5px 2px;border-radius:10px;transition:var(--transition);display:flex;flex-direction:column;align-items:center;gap:2px}
+  .bottomnav button span{font-size:19px}.bottomnav button.active{color:#65b6ff;background:rgba(22,132,255,.08)}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<!-- ========== CANVAS PARTÍCULAS ========== -->
+<canvas id="particleCanvas"></canvas>
+
+<!-- ========== LOGIN ========== -->
+<div id="loginScreen" class="login">
+  <div class="login-shell">
+    <div class="login-brand">
+      <img src="assets/escudo.png" alt="Escudo Manchester FC">
+      <h1>MANCHESTER F.C.</h1>
+      <p>Gestión deportiva y económica del club: planteles, partidos, goles, tarjetas, caja, deudas, rifas, fiestas y aportes personales.</p>
+      <div class="chips">
+        <span class="chip green">Zona Mixta · 3 ascensos</span>
+        <span class="chip gold">Landen · Playoffs</span>
+        <span class="chip blue">Femenino · Campeonas</span>
+      </div>
+    </div>
+    <div class="login-box">
+      <div class="login-switch tabs">
+        <button class="active" data-login-tab="staff">Organizador / DT</button>
+        <button data-login-tab="player">Jugador/a</button>
+      </div>
+      <div class="login-pane" id="staffLogin">
+        <h2>Ingresar al panel</h2>
+        <div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="organizador@email.com"></div>
+        <div class="field"><label>Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
+        <button class="btn" id="loginBtn">Ingresar</button>
+        <div id="configWarning" class="notice hidden">Modo demo activo. Para datos reales, completá <b>config.js</b> con Supabase.</div>
+      </div>
+      <div class="login-pane hidden" id="playerLogin">
+        <h2>Consultar mi estado</h2>
+        <div class="field"><label>DNI</label><input id="publicDni" inputmode="numeric" placeholder="Sin puntos"></div>
+        <div class="field"><label>PIN personal</label><input id="publicPin" inputmode="numeric" type="password" placeholder="4 a 8 dígitos"></div>
+        <button class="btn" id="publicLookupBtn">Consultar</button>
+        <div id="publicLookupResult"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== APP ========== -->
+<div id="appScreen" class="shell hidden">
+  <header class="topbar"><div class="topbar-inner">
+    <div class="brand">
+      <img src="assets/escudo.png" class="brand-logo" alt="">
+      <div><h1>MANCHESTER F.C.</h1><p>GESTIÓN DEL CLUB</p></div>
+    </div>
+    <div class="userbar">
+      <span class="user-pill" id="sessionRole">Organizador</span>
+      <button class="icon-btn" id="logoutBtn" title="Salir">⏻</button>
+    </div>
+  </div></header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <nav class="nav" id="sideNav">
+        <button class="active" data-view="home"><span class="i">⌂</span>Inicio</button>
+        <button data-view="matchday"><span class="i">⚽</span>Cerrar partido</button>
+        <button data-view="players"><span class="i">👥</span>Plantel</button>
+        <button data-view="tournaments"><span class="i">🏆</span>Torneos</button>
+        <button data-view="finance"><span class="i">▣</span>Finanzas</button>
+        <button data-view="fundraising"><span class="i">🎟</span>Rifas y fiestas</button>
+      </nav>
+    </aside>
+
+    <main class="content">
+
+      <!-- ===== HOME ===== -->
+      <section id="home" class="view active">
+        <div class="hero">
+          <div class="hero-grid">
+            <div>
+              <span class="chip blue">TEMPORADA 2026</span>
+              <h2>Control total.<br>Menos cuentas de memoria.</h2>
+              <p>Deporte y economía conectados. Cerrás el partido y el sistema actualiza goles, tarjetas, partidos jugados y divide la cancha automáticamente.</p>
+              <div class="chips">
+                <span class="chip green">Masculino · 1.º actual</span>
+                <span class="chip gold">Femenino · Campeonas Landen</span>
+                <span class="chip violet">Monte Grande</span>
+              </div>
+            </div>
+            
+              <div class="team-badges" style="display:flex;gap:10px;align-items:center;margin-top:14px">
+                <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #315d92;border-radius:12px;background:#071c3a">
+                  <img src="assets/escudo-men.png" alt="Escudo masculino" style="width:34px;height:34px;border-radius:50%">
+                  <span style="font-size:11px;color:#b7cce7">MEN</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #315d92;border-radius:12px;background:#071c3a">
+                  <img src="assets/escudo-fem.png" alt="Escudo femenino" style="width:34px;height:34px;border-radius:50%">
+                  <span style="font-size:11px;color:#b7cce7">FEM</span>
+                </div>
+              </div>
+            <div class="hero-logo"><img src="assets/escudo.png" alt=""></div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div><h2>Resumen</h2><p>Datos vivos desde Supabase.</p></div>
+          <button class="btn small" data-view="matchday">+ Cerrar partido</button>
+        </div>
+        <div class="grid4">
+          <div class="card kpi anim-fade-up stagger-1"><div class="label">Jugadores</div><div class="value" id="kpiPlayers" data-count="0">0</div><div class="sub blue">Activos</div></div>
+          <div class="card kpi anim-fade-up stagger-2"><div class="label">Deuda jugadores</div><div class="value red" id="kpiDebt" data-count="0">$0</div><div class="sub">Saldo pendiente</div></div>
+          <div class="card kpi anim-fade-up stagger-3"><div class="label">Caja neta</div><div class="value" id="kpiCash" data-count="0">$0</div><div class="sub green">Ingresos − gastos + adelantos</div></div>
+          <div class="card kpi anim-fade-up stagger-4"><div class="label">Aportes organizador</div><div class="value gold" id="kpiAdvances" data-count="0">$0</div><div class="sub">Dinero adelantado</div></div>
+        </div>
+
+        <div class="section-head"><div><h2>Situación deportiva</h2></div></div>
+        <div class="grid3">
+          <div class="card anim-fade-up stagger-1">
+            <div class="card-title"><h3>♂ Zona Mixta · Masculino B</h3><span class="badge ok">1.º</span></div>
+            <div class="amount">2 fechas restantes</div>
+            <div class="progress" style="margin-top:8px"><span style="--target:88%;width:88%"></span></div>
+            <p style="color:var(--muted);font-size:11px;margin-top:6px">Todos contra todos · ascienden los primeros 3.</p>
+          </div>
+          <div class="card anim-fade-up stagger-2">
+            <div class="card-title"><h3>♀ Zona Mixta · Femenino A</h3><span class="badge warn">1 partido menos</span></div>
+            <div class="amount">2 fechas + 1 pendiente</div>
+            <div class="progress" style="margin-top:8px"><span style="--target:74%;width:74%"></span></div>
+            <p style="color:var(--muted);font-size:11px;margin-top:6px">Todos contra todos · ascienden los primeros 3.</p>
+          </div>
+          <div class="card anim-fade-up stagger-3">
+            <div class="card-title"><h3>🏆 Landen · Femenino A</h3><span class="badge ok">Campeonas</span></div>
+            <div class="amount gold">Título conseguido</div>
+            <div class="progress" style="margin-top:8px"><span style="--target:100%;width:100%;background:linear-gradient(90deg,#ecb12d,#ffe27f)"></span></div>
+            <p style="color:var(--muted);font-size:11px;margin-top:6px">Fase regular + playoffs.</p>
+          </div>
+        </div>
+
+        <div class="section-head"><div><h2>Costos de cancha</h2></div></div>
+        <div class="grid2">
+          <div class="card anim-fade-up stagger-1">
+            <div class="card-title"><h3>Zona Mixta</h3><span class="badge ok">$74.000</span></div>
+            <div class="stat-strip">
+              <div class="stat-box"><small>10 pres.</small><b>$7.400</b></div>
+              <div class="stat-box"><small>11 pres.</small><b>$6.727</b></div>
+              <div class="stat-box"><small>12 pres.</small><b>$6.167</b></div>
+            </div>
+          </div>
+          <div class="card anim-fade-up stagger-2">
+            <div class="card-title"><h3>Landen</h3><span class="badge ok">$64.000</span></div>
+            <div class="stat-strip">
+              <div class="stat-box"><small>10 pres.</small><b>$6.400</b></div>
+              <div class="stat-box"><small>11 pres.</small><b>$5.818</b></div>
+              <div class="stat-box"><small>12 pres.</small><b>$5.333</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MATCHDAY ===== -->
+      <section id="matchday" class="view">
+        <div class="section-head"><div><h2>Partido del día</h2><p>Una sola carga actualiza resultado, estadísticas y deuda de cancha.</p></div></div>
+        <div class="card anim-scale-in">
+          <div class="form-grid">
+            <div class="field"><label>Rama</label><select id="matchBranch"><option value="masculino">Masculino</option><option value="femenino">Femenino</option></select></div>
+            <div class="field"><label>Torneo</label><select id="matchTournament"></select></div>
+            <div class="field"><label>Fecha</label><input id="matchDate" type="date"></div>
+            <div class="field"><label>Rival</label><input id="matchOpponent" placeholder="Nombre del rival"></div>
+            <div class="field"><label>Goles Manchester</label><input id="matchGF" type="number" min="0" value="0"></input></div>
+            <div class="field"><label>Goles rival</label><input id="matchGA" type="number" min="0" value="0"></input></div>
+            <div class="field"><label>Costo cancha</label><input id="matchCost" type="number" min="0" value="74000"></input></div>
+            <div class="field"><label>Instancia</label><select id="matchStage"><option value="regular">Fase regular</option><option value="quarterfinal">Cuartos</option><option value="semifinal">Semifinal</option><option value="final">Final</option></select></div>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" id="loadSquadBtn">Cargar plantel</button>
+            <button class="btn" id="saveMatchBtn">Guardar y cerrar partido</button>
+          </div>
+        </div>
+        <div class="section-head"><div><h3>Jugadores presentes y estadísticas</h3><p>Marcá presentes y cargá goles/tarjetas con un toque.</p></div><div><span class="badge ok" id="presentCount">0 presentes</span></div></div>
+        <div id="matchPlayers" class="player-grid"></div>
+        <div id="matchSummary" class="notice" style="margin-top:12px">Cargá el plantel para empezar.</div>
+      </section>
+
+      <!-- ===== PLAYERS ===== -->
+      <section id="players" class="view">
+        <div class="section-head"><div><h2>Plantel</h2><p>Jugadores, DNI, deuda y estadísticas acumuladas.</p></div><button class="btn small" id="openPlayerForm">+ Jugador</button></div>
+        <div id="newPlayerCard" class="card hidden" style="margin-bottom:12px">
+          <div class="card-title"><h3>Nuevo jugador/a</h3><button class="btn ghost small" id="closePlayerForm">Cerrar</button></div>
+          <div class="form-grid">
+            <div class="field"><label>Nombre completo</label><input id="pName"></div>
+            <div class="field"><label>DNI</label><input id="pDni" inputmode="numeric"></div>
+            <div class="field"><label>Rama</label><select id="pBranch"><option value="masculino">Masculino</option><option value="femenino">Femenino</option></select></div>
+            <div class="field"><label>Dorsal</label><input id="pJersey" type="number" min="0"></input></div>
+            <div class="field"><label>Teléfono</label><input id="pPhone"></div>
+            <div class="field"><label>Deuda inicial</label><input id="pDebt" type="number" min="0" value="0"></input></div>
+            <div class="field"><label>PIN de consulta</label><input id="pPin" inputmode="numeric" placeholder="4 a 8 dígitos"></div>
+          </div>
+          <div class="actions"><button class="btn" id="savePlayerBtn">Guardar jugador</button></div>
+        </div>
+        <div class="tabs" id="playerTabs">
+          <button class="active" data-branch="all">Todos</button>
+          <button data-branch="masculino">Masculino</button>
+          <button data-branch="femenino">Femenino</button>
+        </div>
+        <div class="table-wrap" style="margin-top:10px">
+          <table><thead><tr><th>Jugador/a</th><th>Rama</th><th>DNI</th><th>PJ</th><th>Goles</th><th>TA</th><th>TR</th><th>Deuda</th></tr></thead><tbody id="playersBody"></tbody></table>
+        </div>
+      </section>
+
+      <!-- ===== TOURNAMENTS ===== -->
+      <section id="tournaments" class="view">
+        <div class="section-head"><div><h2>Torneos</h2><p>Reglas confirmadas + referencia histórica.</p></div></div>
+        <div class="grid2">
+          <div class="card anim-fade-up stagger-1">
+            <div class="card-title"><h3>Zona Mixta · Masculino B</h3><span class="badge ok">3 ascensos</span></div>
+            <p>Todos contra todos. Actualmente 1.º y quedan 2 fechas.</p>
+          </div>
+          <div class="card anim-fade-up stagger-2">
+            <div class="card-title"><h3>Zona Mixta · Femenino A</h3><span class="badge ok">3 ascensos</span></div>
+            <p>Quedan 2 fechas y 1 partido pendiente.</p>
+          </div>
+          <div class="card anim-fade-up stagger-3">
+            <div class="card-title"><h3>Landen · Femenino A</h3><span class="badge warn">Playoffs</span></div>
+            <p>Todos contra todos en fase regular y luego playoffs.</p>
+          </div>
+          <div class="card anim-fade-up stagger-4">
+            <div class="card-title"><h3>Palmarés 2026</h3><span class="badge ok">Título</span></div>
+            <p class="gold"><b>Femenino Manchester FC — Campeonas de Landen.</b></p>
+          </div>
+        </div>
+        <div class="section-head"><div><h3>Zona Mixta · Masculino B — Tabla actual</h3><p>Los primeros 3 están en zona de ascenso.</p></div></div>
+        <div class="table-wrap">
+          <table><thead><tr><th>#</th><th>Equipo</th><th>Pts</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th></tr></thead><tbody>
+            <tr class="promo"><td><span class="rank">1</span></td><td><b>MANCHESTER</b></td><td><b>16</b></td><td>7</td><td>5</td><td>1</td><td>1</td><td>+13</td></tr>
+            <tr class="promo"><td><span class="rank">2</span></td><td>VASEL</td><td>15</td><td>7</td><td>5</td><td>0</td><td>2</td><td>+7</td></tr>
+            <tr class="promo"><td><span class="rank">3</span></td><td>SUTIAGA</td><td>15</td><td>7</td><td>5</td><td>0</td><td>2</td><td>+3</td></tr>
+            <tr><td><span class="rank">4</span></td><td>REAL SUCIEDAD</td><td>12</td><td>7</td><td>4</td><td>0</td><td>3</td><td>-1</td></tr>
+            <tr><td><span class="rank">5</span></td><td>FOSTER</td><td>12</td><td>7</td><td>4</td><td>0</td><td>3</td><td>-3</td></tr>
+            <tr><td><span class="rank">6</span></td><td>PARMA</td><td>9</td><td>7</td><td>3</td><td>0</td><td>4</td><td>+2</td></tr>
+            <tr><td><span class="rank">7</span></td><td>DERBY STARS</td><td>8</td><td>7</td><td>2</td><td>2</td><td>3</td><td>-6</td></tr>
+          </tbody></table>
+        </div>
+      </section>
+
+      <!-- ===== FINANCE ===== -->
+      <section id="finance" class="view">
+        <div class="section-head"><div><h2>Finanzas</h2><p>Lo que más importa: cuánto puso él, cuánto volvió y cuánto falta.</p></div></div>
+        <div class="grid4">
+          <div class="card kpi anim-fade-up stagger-1"><div class="label">Ingresos</div><div class="value green" id="finIncome">$0</div></div>
+          <div class="card kpi anim-fade-up stagger-2"><div class="label">Gastos</div><div class="value red" id="finExpense">$0</div></div>
+          <div class="card kpi anim-fade-up stagger-3"><div class="label">Aportes personales</div><div class="value gold" id="finAdvance">$0</div></div>
+          <div class="card kpi anim-fade-up stagger-4"><div class="label">Caja neta</div><div class="value" id="finBalance">$0</div></div>
+        </div>
+        <div class="grid2" style="margin-top:12px">
+          <div class="card">
+            <h3>Registrar movimiento</h3>
+            <div class="form-grid" style="margin-top:8px">
+              <div class="field"><label>Tipo</label><select id="fType"><option value="income">Ingreso</option><option value="expense">Gasto</option><option value="advance">Aporte personal</option><option value="refund">Devolución</option></select></div>
+              <div class="field"><label>Monto</label><input id="fAmount" type="number" min="0"></input></div>
+              <div class="field"><label>Categoría</label><select id="fCategory"><option>Cancha</option><option>Cuota</option><option>Rifa</option><option>Fiesta</option><option>Torneo</option><option>Indumentaria</option><option>Otro</option></select></div>
+              <div class="field"><label>Método</label><select id="fMethod"><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option><option>Otro</option></select></div>
+              <div class="field full"><label>Descripción</label><input id="fDescription"></div>
+            </div>
+            <div class="actions"><button class="btn" id="saveFinanceBtn">Guardar movimiento</button></div>
+          </div>
+          <div class="card">
+            <h3>Registrar pago de jugador</h3>
+            <div class="field" style="margin-top:8px"><label>Jugador</label><select id="payPlayer"></select></div>
+            <div class="field" style="margin-top:8px"><label>Monto</label><input id="payAmount" type="number" min="0"></input></div>
+            <div class="field" style="margin-top:8px"><label>Método</label><select id="payMethod"><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option><option>Otro</option></select></div>
+            <div class="actions"><button class="btn" id="registerPaymentBtn">Registrar pago</button></div>
+          </div>
+        </div>
+        <div class="section-head"><div><h3>Movimientos recientes</h3></div></div>
+        <div id="ledgerList" class="list"></div>
+      </section>
+
+      <!-- ===== FUNDRAISING ===== -->
+      <section id="fundraising" class="view">
+        <div class="section-head"><div><h2>Rifas, fiestas y recaudación</h2><p>Separadas de la caja normal para saber qué actividad deja plata de verdad.</p></div></div>
+        <div class="grid2">
+          <div class="card">
+            <h3>Nueva actividad</h3>
+            <div class="form-grid" style="margin-top:8px">
+              <div class="field"><label>Nombre</label><input id="evName" placeholder="Rifa aniversario"></div>
+              <div class="field"><label>Tipo</label><select id="evType"><option value="raffle">Rifa</option><option value="party">Fiesta</option><option value="tickets">Entradas</option><option value="sponsor">Sponsor</option><option value="other">Otro</option></select></div>
+              <div class="field"><label>Objetivo</label><input id="evGoal" type="number" min="0"></input></div>
+              <div class="field"><label>Recaudado</label><input id="evRaised" type="number" min="0"></input></div>
+              <div class="field"><label>Gastos</label><input id="evExpenses" type="number" min="0" value="0"></input></div>
+              <div class="field"><label>Fecha</label><input id="evDate" type="date"></div>
+              <div class="field full"><label>Regla de reparto</label><select id="evRule"><option value="none">Sin reparto</option><option value="equal">Partes iguales</option><option value="participants">Solo participantes</option><option value="sales">Según ventas</option><option value="team">Por equipo</option></select></div>
+            </div>
+            <div class="actions"><button class="btn" id="saveEventBtn">Guardar actividad</button></div>
+          </div>
+          <div class="card">
+            <h3>Qué registra</h3>
+            <div class="notice" style="margin-top:8px">Rifas: números, responsables, cobrados y pendientes.<br><br>Fiestas: entradas, puerta, salón, DJ, bebidas, seguridad y ganancia neta.<br><br>El esquema SQL ya deja preparada la asignación individual por jugador.</div>
+          </div>
+        </div>
+        <div class="section-head"><div><h3>Actividades</h3></div></div>
+        <div id="eventsList" class="list"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <nav class="bottomnav" id="bottomNav">
+    <button class="active" data-view="home"><span>⌂</span>Inicio</button>
+    <button data-view="matchday"><span>⚽</span>Partido</button>
+    <button data-view="players"><span>👥</span>Plantel</button>
+    <button data-view="finance"><span>▣</span>Finanzas</button>
+    <button data-view="fundraising"><span>🎟</span>Eventos</button>
+  </nav>
+</div>
+
+<!-- ========== TOAST ========== -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- ========== CONFIG (reemplazar con tu config.js o dejar inline) ========== -->
+<script src="config.js"></script>
+
+<!-- ========== SUPABASE ========== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ========== APP ========== -->
+<script>
+/* ============================================================
+   PARTICLE CANVAS — Fondo animado tipo constelación
+   ============================================================ */
+(function(){
+  const c=document.getElementById("particleCanvas"),ctx=c.getContext("2d");
+  let W,H,particles=[],mouse={x:-9999,y:-9999};
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  window.addEventListener("resize",resize);resize();
+  document.addEventListener("mousemove",e=>{mouse.x=e.clientX;mouse.y=e.clientY});
+  document.addEventListener("mouseleave",()=>{mouse.x=-9999;mouse.y=-9999});
+
+  const COUNT=Math.min(60,Math.floor(window.innerWidth/25));
+  for(let i=0;i<COUNT;i++){
+    particles.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.5,o:Math.random()*.5+.2});
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<particles.length;i++){
+      const p=particles[i];
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      /* atracción sutil al mouse */
+      const dx=mouse.x-p.x,dy=mouse.y-p.y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<180){p.vx+=dx*0.00003;p.vy+=dy*0.00003}
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(72,217,255,${p.o})`;ctx.fill();
+      /* líneas entre cercanos */
+      for(let j=i+1;j<particles.length;j++){
+        const q=particles[j],ex=p.x-q.x,ey=p.y-q.y,ed=Math.sqrt(ex*ex+ey*ey);
+        if(ed<120){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(22,132,255,${.12*(1-ed/120)})`;ctx.lineWidth=.5;ctx.stroke()}
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ============================================================
+   CONFETTI — Celebración al cerrar partido ganado
+   ============================================================ */
+function launchConfetti(){
+  const colors=["#1684ff","#48d9ff","#26db84","#ffc94d","#9b73ff","#ff5266"];
+  for(let i=0;i<40;i++){
+    const el=document.createElement("div");el.className="confetti-piece";
+    el.style.left=Math.random()*100+"vw";el.style.top=(60+Math.random()*30)+"vh";
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDelay=(Math.random()*.4)+"s";
+    el.style.animationDuration=(.8+Math.random()*.6)+"s";
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),2000);
+  }
+}
+
+/* ============================================================
+   APP PRINCIPAL
+   ============================================================ */
+const cfg=window.MFC_CONFIG||{};
+const configured=cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.includes("PEGAR_")&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.includes("PEGAR_");
+const sb=configured?window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
+const $=id=>document.getElementById(id);
+const money=n=>"$"+Number(n||0).toLocaleString("es-AR",{maximumFractionDigits:0});
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+/* ---------- Toast mejorado ---------- */
+let toastTimer=null;
+function toast(msg){
+  const t=$("toast");t.classList.remove("hidden","out");
+  t.innerHTML=msg+'<div class="toast-bar"></div>';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{t.classList.add("out");setTimeout(()=>t.classList.add("hidden"),300)},2800);
+}
+
+/* ---------- Count-up animado ---------- */
+function countUp(el,target,prefix="",suffix=""){
+  const start=0,duration=900,startTime=performance.now();
+  function step(now){
+    const progress=Math.min((now-startTime)/duration,1);
+    const ease=1-Math.pow(1-progress,3);
+    const val=Math.round(start+(target-start)*ease);
+    el.textContent=prefix+val.toLocaleString("es-AR",{maximumFractionDigits:0})+suffix;
+    if(progress<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+let state={session:null,profile:null,players:[],playerTotals:[],tournaments:[],ledger:[],events:[],matchRoster:[],playerFilter:"all"};
+
+/* ---------- DATOS DEMO — Planteles reales ---------- */
+const DEMO_PLAYERS=[
+  /* Masculino B Clausura (actual) */
+  {id:"m1",full_name:"Camino Facundo",dni:"",branch:"masculino",jersey_number:10,current_debt:0,matches_played:7,goals:7,yellow_cards:1,red_cards:0,active:true},
+  {id:"m2",full_name:"Capalbo Franco",dni:"",branch:"masculino",jersey_number:9,current_debt:7400,matches_played:6,goals:1,yellow_cards:1,red_cards:0,active:true},
+  {id:"m3",full_name:"Gómez Cristian",dni:"",branch:"masculino",jersey_number:5,current_debt:0,matches_played:7,goals:1,yellow_cards:1,red_cards:0,active:true},
+  {id:"m4",full_name:"Gómez Germán",dni:"",branch:"masculino",jersey_number:4,current_debt:7400,matches_played:6,goals:2,yellow_cards:0,red_cards:0,active:true},
+  {id:"m5",full_name:"Oliva Santiago",dni:"",branch:"masculino",jersey_number:7,current_debt:0,matches_played:7,goals:8,yellow_cards:2,red_cards:0,active:true},
+  {id:"m6",full_name:"Romero Lucas",dni:"",branch:"masculino",jersey_number:11,current_debt:14800,matches_played:5,goals:3,yellow_cards:0,red_cards:0,active:true},
+  {id:"m7",full_name:"Díaz Matías",dni:"",branch:"masculino",jersey_number:2,current_debt:0,matches_played:7,goals:0,yellow_cards:2,red_cards:0,active:true},
+  {id:"m8",full_name:"Fernández Brian",dni:"",branch:"masculino",jersey_number:8,current_debt:7400,matches_played:6,goals:2,yellow_cards:1,red_cards:0,active:true},
+  {id:"m9",full_name:"Ruiz Ezequiel",dni:"",branch:"masculino",jersey_number:3,current_debt:0,matches_played:7,goals:0,yellow_cards:3,red_cards:0,active:true},
+  {id:"m10",full_name:"Acosta Nicolás",dni:"",branch:"masculino",jersey_number:6,current_debt:7400,matches_played:5,goals:1,yellow_cards:0,red_cards:1,active:true},
+  {id:"m11",full_name:"Pereyra Tomás",dni:"",branch:"masculino",jersey_number:1,current_debt:0,matches_played:7,goals:0,yellow_cards:0,red_cards:0,active:true},
+  {id:"m12",full_name:"López Gabriel",dni:"",branch:"masculino",jersey_number:12,current_debt:0,matches_played:4,goals:0,yellow_cards:1,red_cards:0,active:true},
+  /* Masculino C Transición */
+  {id:"m13",full_name:"Sosa Alan",dni:"",branch:"masculino",jersey_number:14,current_debt:0,matches_played:3,goals:1,yellow_cards:0,red_cards:0,active:true},
+  {id:"m14",full_name:"Vega Marcos",dni:"",branch:"masculino",jersey_number:15,current_debt:0,matches_played:2,goals:0,yellow_cards:0,red_cards:0,active:true},
+  /* Femenino A Clausura (actual) */
+  {id:"f1",full_name:"Rea Natalia",dni:"",branch:"femenino",jersey_number:10,current_debt:0,matches_played:8,goals:4,yellow_cards:1,red_cards:0,active:true},
+  {id:"f2",full_name:"Rolón Ticiana",dni:"",branch:"femenino",jersey_number:9,current_debt:6400,matches_played:8,goals:4,yellow_cards:1,red_cards:0,active:true},
+  {id:"f3",full_name:"Soto Isabel",dni:"",branch:"femenino",jersey_number:7,current_debt:0,matches_played:7,goals:3,yellow_cards:0,red_cards:0,active:true},
+  {id:"f4",full_name:"Flores Micaela",dni:"",branch:"femenino",jersey_number:11,current_debt:0,matches_played:8,goals:1,yellow_cards:0,red_cards:0,active:true},
+  {id:"f5",full_name:"Maidana Agustina",dni:"",branch:"femenino",jersey_number:5,current_debt:6400,matches_played:7,goals:1,yellow_cards:0,red_cards:0,active:true},
+  {id:"f6",full_name:"González Sofía",dni:"",branch:"femenino",jersey_number:8,current_debt:0,matches_played:8,goals:6,yellow_cards:1,red_cards:0,active:true},
+  {id:"f7",full_name:"Martín Luciana",dni:"",branch:"femenino",jersey_number:2,current_debt:0,matches_played:8,goals:0,yellow_cards:2,red_cards:0,active:true},
+  {id:"f8",full_name:"Ortiz Camila",dni:"",branch:"femenino",jersey_number:4,current_debt:12800,matches_played:6,goals:2,yellow_cards:0,red_cards:0,active:true},
+  {id:"f9",full_name:"Paz Valentina",dni:"",branch:"femenino",jersey_number:6,current_debt:0,matches_played:8,goals:3,yellow_cards:1,red_cards:0,active:true},
+  {id:"f10",full_name:"Ríos Daiana",dni:"",branch:"femenino",jersey_number:3,current_debt:0,matches_played:7,goals:0,yellow_cards:0,red_cards:0,active:true},
+  {id:"f11",full_name:"Cruz Lorena",dni:"",branch:"femenino",jersey_number:1,current_debt:0,matches_played:8,goals:0,yellow_cards:0,red_cards:0,active:true},
+  {id:"f12",full_name:"Luna Priscila",dni:"",branch:"femenino",jersey_number:12,current_debt:6400,matches_played:5,goals:1,yellow_cards:0,red_cards:0,active:true},
+  /* Femenino A Transición */
+  {id:"f13",full_name:"Herrera Ayelén",dni:"",branch:"femenino",jersey_number:14,current_debt:0,matches_played:3,goals:0,yellow_cards:0,red_cards:0,active:true},
+  {id:"f14",full_name:"Blanco Romina",dni:"",branch:"femenino",jersey_number:15,current_debt:0,matches_played:2,goals:1,yellow_cards:0,red_cards:0,active:true}
+];
+
+const DEMO_TOURNAMENTS=[
+  {id:"t1",name:"Zona Mixta",season:"2026",branch:"masculino",division:"B",venue_cost:74000,active:true},
+  {id:"t2",name:"Zona Mixta",season:"2026",branch:"femenino",division:"A",venue_cost:74000,active:true},
+  {id:"t3",name:"Landen",season:"2026",branch:"femenino",division:"A",venue_cost:64000,active:true},
+  {id:"t4",name:"Zona Mixta C",season:"2026",branch:"masculino",division:"C",venue_cost:74000,active:true}
+];
+
+const DEMO_LEDGER=[
+  {id:"l1",type:"advance",amount:74000,category:"Cancha",payment_method:"Efectivo",description:"Cancha Zona Mixta Fecha 7",entry_date:"2026-06-10",created_at:"2026-06-10"},
+  {id:"l2",type:"income",amount:7400,category:"Cuota",payment_method:"Transferencia",description:"Pago Camino Facundo",entry_date:"2026-06-11",created_at:"2026-06-11"},
+  {id:"l3",type:"income",amount:7400,category:"Cuota",payment_method:"Mercado Pago",description:"Pago Oliva Santiago",entry_date:"2026-06-11",created_at:"2026-06-11"},
+  {id:"l4",type:"expense",amount:74000,category:"Cancha",payment_method:"Efectivo",description:"Cancha Zona Mixta Fecha 7",entry_date:"2026-06-10",created_at:"2026-06-10"}
+];
+
+/* ---------- Login tabs ---------- */
+document.querySelectorAll("[data-login-tab]").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("[data-login-tab]").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+  $("staffLogin").classList.toggle("hidden",b.dataset.loginTab!=="staff");
+  $("playerLogin").classList.toggle("hidden",b.dataset.loginTab!=="player");
+}));
+
+/* ---------- Navegación ---------- */
+function showView(id){
+  document.querySelectorAll(".view").forEach(v=>{v.classList.remove("active")});
+  const target=document.getElementById(id);
+  if(target){/* small delay para reiniciar animación */requestAnimationFrame(()=>target.classList.add("active"))}
+  document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+  if(id==="matchday")refreshMatchSetup();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
+
+/* ---------- Boot ---------- */
+async function boot(){
+  if(!configured){
+    $("configWarning").classList.remove("hidden");
+    state.players=DEMO_PLAYERS;state.playerTotals=DEMO_PLAYERS;state.tournaments=DEMO_TOURNAMENTS;state.ledger=DEMO_LEDGER;state.events=[];
+    $("loginBtn").textContent="Entrar en demo";
+    return;
+  }
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){state.session=session;await enterApp();}
+}
+
+async function enterApp(){
+  if(configured){
+    const{data:profile,error}=await sb.from("profiles").select("*").eq("id",state.session.user.id).single();
+    if(error){toast("Falta crear el perfil/rol del usuario en Supabase.");return;}
+    state.profile=profile;
+    $("sessionRole").textContent=profile.role==="organizer"?"Organizador + DT":profile.role;
+  }else{
+    state.profile={full_name:"Organizador Demo",role:"organizer"};$("sessionRole").textContent="Organizador + DT · DEMO";
+  }
+  $("loginScreen").classList.add("hidden");$("appScreen").classList.remove("hidden");
+  await loadAll();
+}
+
+ $("loginBtn").addEventListener("click",async()=>{
+  if(!configured){await enterApp();return}
+  const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
+  const{data,error}=await sb.auth.signInWithPassword({email,password});
+  if(error){toast(error.message);return}
+  state.session=data.session;await enterApp();
+});
+ $("logoutBtn").addEventListener("click",async()=>{if(configured)await sb.auth.signOut();location.reload();});
+
+/* ---------- Consulta jugador ---------- */
+ $("publicLookupBtn").addEventListener("click",async()=>{
+  const dni=$("publicDni").value.replace(/\D/g,""),pin=$("publicPin").value.trim();
+  if(!configured){
+    const p=DEMO_PLAYERS.find(x=>x.dni===dni);
+    if(!p){$("publicLookupResult").innerHTML='<div class="notice">DNI no encontrado en demo.</div>';return}
+    $("publicLookupResult").innerHTML=`<div class="card" style="margin-top:10px;animation:scaleIn .4s ease both"><div class="card-title"><h3>${esc(p.full_name)}</h3><span class="badge ${Number(p.current_debt)>0?"bad":"ok"}">${Number(p.current_debt)>0?"Debe dinero":"Al día"}</span></div><div class="grid2"><div><small>Deuda</small><div class="amount ${Number(p.current_debt)>0?"red":"green"}">${money(p.current_debt)}</div></div><div><small>Estadísticas</small><div class="amount">${p.matches_played} PJ · ${p.goals} G · ${p.yellow_cards} TA</div></div></div></div>`;
+    return;
+  }
+  const{data,error}=await sb.rpc("player_self_lookup",{p_dni:dni,p_pin:pin});
+  if(error){$("publicLookupResult").innerHTML=`<div class="notice">${esc(error.message)}</div>`;return}
+  if(!data?.length){$("publicLookupResult").innerHTML='<div class="notice">DNI o PIN incorrecto.</div>';return}
+  const p=data[0];
+  $("publicLookupResult").innerHTML=`<div class="card" style="margin-top:10px;animation:scaleIn .4s ease both"><div class="card-title"><h3>${esc(p.full_name)}</h3><span class="badge ${Number(p.current_debt)>0?"bad":"ok"}">${Number(p.current_debt)>0?"Debe dinero":"Al día"}</span></div><div class="grid2"><div><small>Deuda</small><div class="amount ${Number(p.current_debt)>0?"red":"green"}">${money(p.current_debt)}</div></div><div><small>Estadísticas</small><div class="amount">${p.matches_played} PJ · ${p.goals} G</div></div></div></div>`;
+});
+
+/* ---------- Cargar datos ---------- */
+async function loadAll(){
+  if(!configured){
+    state.players=DEMO_PLAYERS;state.playerTotals=DEMO_PLAYERS;state.tournaments=DEMO_TOURNAMENTS;state.ledger=DEMO_LEDGER;state.events=[];
+    renderAll();return;
+  }
+  const[playersQ,totalsQ,tourQ,ledgerQ,eventsQ]=await Promise.all([
+    sb.from("players").select("*").order("full_name"),
+    sb.from("player_totals").select("*").order("full_name"),
+    sb.from("tournaments").select("*").eq("active",true).order("name"),
+    sb.from("ledger").select("*").order("created_at",{ascending:false}).limit(30),
+    sb.from("fundraising_events").select("*").order("created_at",{ascending:false})
+  ]);
+  if(playersQ.error)toast(playersQ.error.message);
+  state.players=playersQ.data||[];state.playerTotals=totalsQ.data||[];state.tournaments=tourQ.data||[];state.ledger=ledgerQ.data||[];state.events=eventsQ.data||[];
+  renderAll();
+}
+
+function renderAll(){renderKpis();renderPlayers();renderFinance();renderEvents();populatePlayerSelects();refreshMatchSetup()}
+
+/* ---------- KPIs con count-up ---------- */
+function renderKpis(){
+  const debt=state.players.reduce((a,p)=>a+Number(p.current_debt||0),0);
+  const inc=state.ledger.filter(x=>x.type==="income").reduce((a,b)=>a+Number(b.amount||0),0);
+  const exp=state.ledger.filter(x=>x.type==="expense").reduce((a,b)=>a+Number(b.amount||0),0);
+  const adv=state.ledger.filter(x=>x.type==="advance").reduce((a,b)=>a+Number(b.amount||0),0);
+  const refund=state.ledger.filter(x=>x.type==="refund").reduce((a,b)=>a+Number(b.amount||0),0);
+  const cashVal=inc-exp+adv-refund;
+  const activeCount=state.players.filter(p=>p.active!==false).length;
+  countUp($("kpiPlayers"),activeCount);
+  countUp($("kpiDebt"),debt,"$");
+  countUp($("kpiCash"),cashVal,"$");
+  countUp($("kpiAdvances"),adv,"$");
+  countUp($("finIncome"),inc,"$");
+  countUp($("finExpense"),exp,"$");
+  countUp($("finAdvance"),adv,"$");
+  countUp($("finBalance"),cashVal,"$");
+  /* color dinámico caja */
+  $("kpiCash").className="value "+(cashVal>=0?"green":"red");
+  $("finBalance").className="value "+(cashVal>=0?"green":"red");
+}
+
+/* ---------- Plantel ---------- */
+function renderPlayers(){
+  const map=new Map(state.playerTotals.map(x=>[x.id,x]));
+  const rows=state.players.filter(p=>state.playerFilter==="all"||p.branch===state.playerFilter).map((p,idx)=>{
+    const t=map.get(p.id)||p;
+    const debtClass=Number(p.current_debt)>0?"red":"green";
+    return `<tr style="animation:fadeInUp .4s ease both;animation-delay:${idx*30}ms"><td><b>${esc(p.full_name)}</b>${p.jersey_number?" <span style='color:var(--muted);font-size:10px'>#${p.jersey_number}</span>":""}</td><td>${p.branch==="masculino"?"♂ Masc.":"♀ Fem."}</td><td>${p.dni||"—"}</td><td>${t.matches_played||0}</td><td>${t.goals||0}</td><td>${t.yellow_cards||0}</td><td>${t.red_cards||0}</td><td class="${debtClass}"><b>${money(p.current_debt)}</b></td></tr>`;
+  }).join("");
+  $("playersBody").innerHTML=rows||'<tr><td colspan="8"><div class="empty">Sin jugadores.</div></td></tr>';
+}
+document.querySelectorAll("#playerTabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#playerTabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+  state.playerFilter=b.dataset.branch;renderPlayers();
+}));
+
+/* ---------- Alta jugador ---------- */
+ $("openPlayerForm").addEventListener("click",()=>$("newPlayerCard").classList.remove("hidden"));
+ $("closePlayerForm").addEventListener("click",()=>$("newPlayerCard").classList.add("hidden"));
+ $("savePlayerBtn").addEventListener("click",async()=>{
+  if(!configured){toast("Conectá Supabase para guardar jugadores reales.");return}
+  const payload={full_name:$("pName").value.trim(),dni:$("pDni").value.replace(/\D/g,""),branch:$("pBranch").value,jersey_number:Number($("pJersey").value)||null,phone:$("pPhone").value.trim()||null,current_debt:Number($("pDebt").value)||0};
+  if(!payload.full_name||!payload.dni){toast("Nombre y DNI son obligatorios.");return}
+  const{data,error}=await sb.from("players").insert(payload).select().single();
+  if(error){toast(error.message);return}
+  const pin=$("pPin").value.trim();if(pin){const r=await sb.rpc("set_player_pin",{p_player_id:data.id,p_pin:pin});if(r.error)toast(r.error.message)}
+  toast("Jugador guardado");["pName","pDni","pJersey","pPhone","pDebt","pPin"].forEach(id=>$(id).value=id==="pDebt"?"0":"");await loadAll();
+});
+
+/* ---------- Match setup ---------- */
+function refreshMatchSetup(){
+  const branch=$("matchBranch").value;
+  const tours=state.tournaments.filter(t=>t.branch===branch);
+  $("matchTournament").innerHTML=tours.map(t=>`<option value="${t.id}" data-cost="${t.venue_cost}">${esc(t.name)}${t.division?" · "+esc(t.division):""}</option>`).join("");
+  if(tours.length)$("matchCost").value=tours[0].venue_cost||0;
+}
+ $("matchBranch").addEventListener("change",()=>{refreshMatchSetup();state.matchRoster=[];$("matchPlayers").innerHTML="";updatePresentSummary()});
+ $("matchTournament").addEventListener("change",()=>{const o=$("matchTournament").selectedOptions[0];if(o)$("matchCost").value=o.dataset.cost||0});
+
+/* ---------- Cargar plantel al partido ---------- */
+ $("loadSquadBtn").addEventListener("click",()=>{
+  const branch=$("matchBranch").value;
+  state.matchRoster=state.players.filter(p=>p.branch===branch&&p.active!==false).map(p=>({player_id:p.id,name:p.full_name,jersey:p.jersey_number,played:true,goals:0,yellow_cards:0,red_cards:0,assists:0}));
+  renderMatchRoster();
+});
+
+function renderMatchRoster(){
+  $("matchPlayers").innerHTML=state.matchRoster.map((p,i)=>`<div class="player-card" style="animation:fadeInUp .4s ease both;animation-delay:${i*40}ms">
+    <div class="player-top"><strong>${p.jersey?"#"+p.jersey+" ":""}${esc(p.name)}</strong><label style="display:flex;align-items:center;gap:5px;text-transform:none;font-size:11px;color:var(--muted)"><input type="checkbox" data-played="${i}" ${p.played?"checked":""} style="width:auto;accent-color:var(--green)"> Pres.</label></div>
+    <div class="counters">
+      <div class="counter"><small>Goles</small><div class="counter-row"><button data-dec="${i}:goals">−</button><b>${p.goals}</b><button data-inc="${i}:goals">+</button></div></div>
+      <div class="counter"><small>Amarillas</small><div class="counter-row"><button data-dec="${i}:yellow_cards">−</button><b>${p.yellow_cards}</b><button data-inc="${i}:yellow_cards">+</button></div></div>
+      <div class="counter"><small>Rojas</small><div class="counter-row"><button data-dec="${i}:red_cards">−</button><b>${p.red_cards}</b><button data-inc="${i}:red_cards">+</button></div></div>
+    </div></div>`).join("");
+  document.querySelectorAll("[data-played]").forEach(c=>c.addEventListener("change",()=>{state.matchRoster[Number(c.dataset.played)].played=c.checked;updatePresentSummary()}));
+  document.querySelectorAll("[data-inc]").forEach(b=>b.addEventListener("click",()=>{const[i,k]=b.dataset.inc.split(":");state.matchRoster[+i][k]++;renderMatchRoster()}));
+  document.querySelectorAll("[data-dec]").forEach(b=>b.addEventListener("click",()=>{const[i,k]=b.dataset.dec.split(":");state.matchRoster[+i][k]=Math.max(0,state.matchRoster[+i][k]-1);renderMatchRoster()}));
+  updatePresentSummary();
+}
+
+function updatePresentSummary(){
+  const n=state.matchRoster.filter(p=>p.played).length,cost=Number($("matchCost").value)||0,each=n?cost/n:0;
+  $("presentCount").textContent=`${n} presentes`;
+  $("matchSummary").innerHTML=n?`Cancha: <b>${money(cost)}</b> · Aporte: <b>${money(each)}</b> por presente. Al cerrar el partido se genera la deuda automáticamente.`:"Cargá el plantel para empezar.";
+}
+ $("matchCost").addEventListener("input",updatePresentSummary);
+
+/* ---------- Guardar partido ---------- */
+ $("saveMatchBtn").addEventListener("click",async()=>{
+  if(!configured){toast("Conectá Supabase para cerrar partidos reales.");return}
+  const opponent=$("matchOpponent").value.trim(),date=$("matchDate").value;
+  if(!opponent||!date||!state.matchRoster.length){toast("Falta fecha, rival o plantel.");return}
+  const payload={tournament_id:$("matchTournament").value||null,branch:$("matchBranch").value,match_date:date,opponent,stage:$("matchStage").value,goals_for:Number($("matchGF").value)||0,goals_against:Number($("matchGA").value)||0,venue_cost:Number($("matchCost").value)||0,created_by:state.session.user.id};
+  const{data:m,error}=await sb.from("matches").insert(payload).select().single();if(error){toast(error.message);return}
+  const rows=state.matchRoster.map(p=>({match_id:m.id,player_id:p.player_id,played:p.played,goals:p.goals,yellow_cards:p.yellow_cards,red_cards:p.red_cards,assists:p.assists||0}));
+  const ins=await sb.from("match_players").insert(rows);if(ins.error){toast(ins.error.message);return}
+  const close=await sb.rpc("close_match",{p_match_id:m.id});if(close.error){toast(close.error.message);return}
+  /* confetti si ganaron */
+  if(payload.goals_for>payload.goals_against)launchConfetti();
+  toast("Partido cerrado: resultado, estadísticas y deuda actualizados.");
+  state.matchRoster=[];$("matchPlayers").innerHTML="";$("matchOpponent").value="";await loadAll();showView("home");
+});
+
+/* ---------- Finanzas ---------- */
+function renderFinance(){
+  $("ledgerList").innerHTML=state.ledger.length?state.ledger.map((m,i)=>`<div class="item" style="animation:slideInRight .4s ease both;animation-delay:${i*50}ms"><div><b>${esc(m.description||m.category)}</b><div class="meta">${m.entry_date||""} · ${esc(m.category)}${m.payment_method?" · "+esc(m.payment_method):""}</div></div><div class="amount ${m.type==="expense"||m.type==="refund"?"red":m.type==="advance"?"gold":"green"}">${m.type==="expense"||m.type==="refund"?"−":"+"}${money(m.amount)}</div></div>`).join(""):'<div class="empty">Sin movimientos todavía.</div>';
+}
+ $("saveFinanceBtn").addEventListener("click",async()=>{
+  if(!configured){toast("Conectá Supabase para registrar finanzas.");return}
+  const amount=Number($("fAmount").value)||0;if(amount<=0){toast("Ingresá un monto.");return}
+  const payload={type:$("fType").value,amount,category:$("fCategory").value,payment_method:$("fMethod").value,description:$("fDescription").value.trim()||null,created_by:state.session.user.id};
+  const{error}=await sb.from("ledger").insert(payload);if(error){toast(error.message);return}
+  toast("Movimiento guardado");$("fAmount").value="";$("fDescription").value="";await loadAll();
+});
+function populatePlayerSelects(){
+  $("payPlayer").innerHTML=state.players.map(p=>`<option value="${p.id}">${esc(p.full_name)} · debe ${money(p.current_debt)}</option>`).join("");
+}
+ $("registerPaymentBtn").addEventListener("click",async()=>{
+  if(!configured){toast("Conectá Supabase.");return}
+  const id=$("payPlayer").value,amount=Number($("payAmount").value)||0;if(!id||amount<=0){toast("Elegí jugador y monto.");return}
+  const{error}=await sb.rpc("register_player_payment",{p_player_id:id,p_amount:amount,p_category:"Pago jugador",p_method:$("payMethod").value,p_description:"Pago registrado desde panel"});
+  if(error){toast(error.message);return}
+  toast("Pago registrado y deuda actualizada");$("payAmount").value="";await loadAll();
+});
+
+/* ---------- Eventos / Rifas ---------- */
+function renderEvents(){
+  $("eventsList").innerHTML=state.events.length?state.events.map((e,i)=>{const pct=e.goal_amount?Math.min(100,Math.round(Number(e.raised_amount)/Number(e.goal_amount)*100)):0;const net=Number(e.raised_amount||0)-Number(e.expenses_amount||0);return `<div class="card" style="animation:fadeInUp .4s ease both;animation-delay:${i*60}ms"><div class="card-title"><h3>${esc(e.name)}</h3><span class="badge ok">${esc(e.event_type)}</span></div><div style="display:flex;justify-content:space-between"><span>${money(e.raised_amount)} / ${money(e.goal_amount)}</span><b>${pct}%</b></div><div class="progress" style="margin-top:8px"><span style="--target:${pct}%;width:${pct}%"></span></div><p style="font-size:11px;color:var(--muted);margin-top:6px">Gastos ${money(e.expenses_amount)} · Neto <b class="${net>=0?"green":"red"}">${money(net)}</b></p></div>`}).join(""):'<div class="empty">Sin rifas o fiestas cargadas.</div>';
+}
+ $("saveEventBtn").addEventListener("click",async()=>{
+  if(!configured){toast("Conectá Supabase para guardar actividades.");return}
+  const payload={name:$("evName").value.trim(),event_type:$("evType").value,goal_amount:Number($("evGoal").value)||0,raised_amount:Number($("evRaised").value)||0,expenses_amount:Number($("evExpenses").value)||0,event_date:$("evDate").value||null,distribution_rule:$("evRule").value,created_by:state.session.user.id};
+  if(!payload.name){toast("Falta el nombre.");return}
+  const{error}=await sb.from("fundraising_events").insert(payload);if(error){toast(error.message);return}
+  toast("Actividad guardada");$("evName").value="";await loadAll();
+});
+
+/* ---------- Fecha de hoy por defecto ---------- */
+const today=new Date().toISOString().split("T")[0];
+if($("matchDate"))$("matchDate").value=today;
+if($("evDate"))$("evDate").value=today;
+
+boot();
+</script>
+</body>
+</html>
