@@ -122,7 +122,7 @@ img{display:block;max-width:100%}
 
 /* ========== CARDS ========== */
 .card{border-radius:18px;padding:16px;background:linear-gradient(180deg,rgba(15,41,83,.9),rgba(7,25,53,.92));border:1px solid #234a7d;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:0;transition:var(--transition);position:relative;overflow:hidden}
-.card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(22,132,255,.04),transparent 60%);opacity:0;transition:var(--transition)}
+.card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(22,132,255,.04),transparent 60%);opacity:0;transition:var(--transition);pointer-events:none}
 .card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.28);border-color:#2e5e99}
 .card:hover::before{opacity:1}
 
