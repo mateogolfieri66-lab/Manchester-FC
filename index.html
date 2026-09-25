@@ -446,6 +446,54 @@ tr:hover td{background:rgba(29,143,255,.075)}
   .crest-orbit{width:260px}
 }
 
+
+/* ===== HISTORIAL / HALL OF FAME V4 ===== */
+.history-shell{display:grid;gap:12px}
+.history-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.history-toolbar .field{min-width:180px;flex:1}
+.hall-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:end;min-height:210px}
+.podium-card{position:relative;text-align:center;border:1px solid #28598e;border-radius:18px;padding:14px 10px;background:linear-gradient(180deg,#0b2b55,#06172f)}
+.podium-card.p1{min-height:190px;border-color:rgba(255,201,77,.55);box-shadow:0 0 34px rgba(255,201,77,.09)}
+.podium-card.p2{min-height:165px}.podium-card.p3{min-height:145px}
+.podium-place{font-size:28px;font-weight:900;font-family:var(--font-display)}
+.podium-name{font-size:12px;font-weight:800;margin-top:8px}.podium-goals{font-size:24px;font-weight:950;margin-top:5px}
+.history-stat{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.timeline{display:flex;gap:8px;overflow-x:auto;padding:3px 0 7px}
+.timeline button{white-space:nowrap;border:1px solid #28507f;background:#071c39;color:#9db5d5;padding:8px 11px;border-radius:999px}
+.timeline button.active{background:#1478ff;color:#fff;border-color:#3da2ff}
+.standings-editor{display:grid;gap:8px}
+.standing-row-edit{display:grid;grid-template-columns:52px minmax(150px,1.6fr) repeat(7,minmax(55px,.55fr));gap:6px;align-items:center}
+.standing-row-edit input{padding:8px}
+@media(max-width:1050px){.hall-grid{grid-template-columns:1fr}.standing-row-edit{grid-template-columns:45px minmax(140px,1fr) repeat(4,58px)}.standing-row-edit .hide-sm{display:none}}
+@media(max-width:700px){.podium{grid-template-columns:1fr}.podium-card.p1,.podium-card.p2,.podium-card.p3{min-height:auto}.standing-row-edit{grid-template-columns:40px 1fr 55px 55px}.standing-row-edit .mobile-hide{display:none}}
+
+
+/* ===== V5: IMPORTADOR DE RESULTADOS + CRUD FINANZAS ===== */
+.import-zone{
+  position:relative;border:1px dashed #3882c8;border-radius:18px;padding:18px;
+  background:linear-gradient(145deg,rgba(10,45,88,.58),rgba(4,17,37,.85));
+  text-align:center;transition:var(--transition)
+}
+.import-zone.drag{border-color:#62dfff;background:rgba(13,70,119,.55);box-shadow:0 0 32px rgba(72,217,255,.12)}
+.import-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ocr-status{display:grid;gap:7px;margin-top:10px}
+.result-editor{display:grid;gap:8px}
+.result-row{
+  display:grid;grid-template-columns:minmax(150px,1fr) 60px 24px 60px minmax(150px,1fr) 38px;
+  align-items:center;gap:6px;padding:8px;border:1px solid #244d80;border-radius:12px;background:#061a35
+}
+.result-row .vs{text-align:center;color:#6f8cad;font-size:10px;font-weight:900}
+.finance-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.modal-backdrop{
+  position:fixed;inset:0;z-index:120;background:rgba(0,5,14,.72);backdrop-filter:blur(8px);
+  display:grid;place-items:center;padding:18px
+}
+.modal-card{width:min(560px,100%);max-height:90vh;overflow:auto}
+@media(max-width:720px){
+ .result-row{grid-template-columns:1fr 52px 18px 52px 1fr 34px}
+}
+
 </style>
 </head>
 <body>
@@ -649,38 +697,135 @@ tr:hover td{background:rgba(29,143,255,.075)}
         </div>
       </section>
 
-      <!-- ===== TOURNAMENTS ===== -->
+      <!-- ===== TOURNAMENTS / HISTORIA ===== -->
       <section id="tournaments" class="view">
-        <div class="section-head"><div><h2>Torneos</h2><p>Reglas confirmadas + referencia histórica.</p></div></div>
-        <div class="grid2">
-          <div class="card anim-fade-up stagger-1">
-            <div class="card-title"><h3>Zona Mixta · Masculino B</h3><span class="badge ok">3 ascensos</span></div>
-            <p>Todos contra todos. Actualmente 1.º y quedan 2 fechas.</p>
-          </div>
-          <div class="card anim-fade-up stagger-2">
-            <div class="card-title"><h3>Zona Mixta · Femenino A</h3><span class="badge ok">3 ascensos</span></div>
-            <p>Quedan 2 fechas y 1 partido pendiente.</p>
-          </div>
-          <div class="card anim-fade-up stagger-3">
-            <div class="card-title"><h3>Landen · Femenino A</h3><span class="badge warn">Playoffs</span></div>
-            <p>Todos contra todos en fase regular y luego playoffs.</p>
-          </div>
-          <div class="card anim-fade-up stagger-4">
-            <div class="card-title"><h3>Palmarés 2026</h3><span class="badge ok">Título</span></div>
-            <p class="gold"><b>Femenino Manchester FC — Campeonas de Landen.</b></p>
+        <div class="section-head">
+          <div>
+            <h2>Historia & Competencia</h2>
+            <p>Ranking histórico del club, rendimiento por torneo y evolución de cada tabla.</p>
           </div>
         </div>
-        <div class="section-head"><div><h3>Zona Mixta · Masculino B — Tabla actual</h3><p>Los primeros 3 están en zona de ascenso.</p></div></div>
-        <div class="table-wrap">
-          <table><thead><tr><th>#</th><th>Equipo</th><th>Pts</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th></tr></thead><tbody>
-            <tr class="promo"><td><span class="rank">1</span></td><td><b>MANCHESTER</b></td><td><b>16</b></td><td>7</td><td>5</td><td>1</td><td>1</td><td>+13</td></tr>
-            <tr class="promo"><td><span class="rank">2</span></td><td>VASEL</td><td>15</td><td>7</td><td>5</td><td>0</td><td>2</td><td>+7</td></tr>
-            <tr class="promo"><td><span class="rank">3</span></td><td>SUTIAGA</td><td>15</td><td>7</td><td>5</td><td>0</td><td>2</td><td>+3</td></tr>
-            <tr><td><span class="rank">4</span></td><td>REAL SUCIEDAD</td><td>12</td><td>7</td><td>4</td><td>0</td><td>3</td><td>-1</td></tr>
-            <tr><td><span class="rank">5</span></td><td>FOSTER</td><td>12</td><td>7</td><td>4</td><td>0</td><td>3</td><td>-3</td></tr>
-            <tr><td><span class="rank">6</span></td><td>PARMA</td><td>9</td><td>7</td><td>3</td><td>0</td><td>4</td><td>+2</td></tr>
-            <tr><td><span class="rank">7</span></td><td>DERBY STARS</td><td>8</td><td>7</td><td>2</td><td>2</td><td>3</td><td>-6</td></tr>
-          </tbody></table>
+
+        <div class="grid4">
+          <div class="card kpi"><div class="label">Goleador histórico</div><div class="value gold" id="histTopScorer">—</div><div class="sub" id="histTopScorerGoals">—</div></div>
+          <div class="card kpi"><div class="label">Goles registrados</div><div class="value" id="histGoalsTotal">0</div><div class="sub blue">Histórico + nuevos</div></div>
+          <div class="card kpi"><div class="label">Torneos con historia</div><div class="value" id="histTournamentCount">0</div><div class="sub">Ediciones registradas</div></div>
+          <div class="card kpi"><div class="label">Tablas guardadas</div><div class="value" id="histStandingsCount">0</div><div class="sub green">Fotos de posiciones</div></div>
+        </div>
+
+        <div class="section-head"><div><h3>Hall of Fame · Goleadores del club</h3><p>Todo el historial cargado, más los partidos nuevos.</p></div></div>
+        <div class="hall-grid">
+          <div class="card">
+            <div id="historyPodium" class="podium"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><h3>Top histórico</h3><span class="badge ok">ALL TIME</span></div>
+            <div id="historyTopList" class="list"></div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div><h3>Ranking por torneo</h3><p>Elegí una edición y compará sus goleadores.</p></div>
+        </div>
+        <div class="card history-shell">
+          <div class="history-toolbar">
+            <div class="field"><label>Torneo / edición</label><select id="historyTournamentSelect"></select></div>
+            <div class="field"><label>Rama</label><select id="historyBranchSelect"><option value="all">Ambos</option><option value="masculino">Masculino</option><option value="femenino">Femenino</option></select></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Jugador/a</th><th>Rama</th><th>PJ</th><th>Goles</th><th>TA</th><th>TR</th><th>Estado</th></tr></thead>
+              <tbody id="historyTournamentBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        
+        <div class="section-head">
+          <div>
+            <h3>Importar resultados</h3>
+            <p>Subí una captura de la app o pegá resultados. La tabla se recalcula y guarda sola.</p>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="history-toolbar">
+              <div class="field"><label>Torneo</label><select id="resultImportTournament"></select></div>
+              <div class="field"><label>Fecha / jornada</label><input id="resultImportRound" placeholder="Fecha 8"></div>
+              <div class="field"><label>Fecha</label><input id="resultImportDate" type="date"></div>
+            </div>
+
+            <div class="import-zone" id="resultDropZone" style="margin-top:12px">
+              <input id="resultImageInput" type="file" accept="image/*">
+              <div style="font-size:30px">📸</div>
+              <b>Subir captura de resultados</b>
+              <p style="color:var(--muted);font-size:11px;margin-top:5px">OCR gratuito en el navegador. Después confirmás antes de guardar.</p>
+            </div>
+
+            <div id="ocrStatus" class="ocr-status hidden">
+              <div class="progress"><span id="ocrProgress" style="width:0%"></span></div>
+              <div class="meta" id="ocrStatusText">Procesando...</div>
+            </div>
+
+            <div class="field" style="margin-top:12px">
+              <label>O pegá texto de resultados</label>
+              <textarea id="resultRawText" placeholder="Ej:
+MANCHESTER 4 - 2 VASEL
+SUTIAGA 1 - 1 PARMA"></textarea>
+            </div>
+            <div class="actions">
+              <button class="btn secondary" id="parseResultsBtn">Detectar resultados</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <h3>Resultados detectados</h3>
+              <span class="badge warn" id="parsedResultCount">0 partidos</span>
+            </div>
+            <div id="parsedResultsEditor" class="result-editor"></div>
+            <div class="actions">
+              <button class="btn secondary" id="addResultRowBtn">+ Partido</button>
+              <button class="btn" id="saveImportedResultsBtn">Guardar y recalcular tabla</button>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="section-head">
+          <div><h3>Evolución de tablas</h3><p>Cada actualización se guarda como una foto: podés volver a cualquier fecha anterior.</p></div>
+          <button class="btn small" id="newStandingsBtn">+ Nueva foto de tabla</button>
+        </div>
+
+        <div class="card">
+          <div class="history-toolbar">
+            <div class="field"><label>Torneo</label><select id="standingsTournamentSelect"></select></div>
+            <div class="field"><label>Versión / fecha</label><select id="standingsVersionSelect"></select></div>
+          </div>
+          <div id="standingsTimeline" class="timeline" style="margin-top:10px"></div>
+          <div class="table-wrap" style="margin-top:10px">
+            <table>
+              <thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th></tr></thead>
+              <tbody id="standingsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="standingsEditorCard" class="card hidden" style="margin-top:12px">
+          <div class="card-title"><h3>Guardar nueva foto de la tabla</h3><button class="btn ghost small" id="closeStandingsEditor">Cerrar</button></div>
+          <div class="form-grid">
+            <div class="field"><label>Torneo</label><select id="standingsEditTournament"></select></div>
+            <div class="field"><label>Fecha</label><input id="standingsSnapshotDate" type="date"></div>
+            <div class="field"><label>Fecha / jornada</label><input id="standingsRoundLabel" placeholder="Fecha 8 · 25/09"></div>
+            <div class="field"><label>Nota</label><input id="standingsNotes" placeholder="Ej: Manchester sigue 1.º"></div>
+          </div>
+          <div style="margin-top:12px;font-size:10px;color:#8ea8ca">POS · EQUIPO · PJ · G · E · P · GF · GC · PTS</div>
+          <div id="standingsEditorRows" class="standings-editor" style="margin-top:7px"></div>
+          <div class="actions">
+            <button class="btn secondary" id="addStandingsRowBtn">+ Equipo</button>
+            <button class="btn" id="saveStandingsBtn">Guardar foto histórica</button>
+          </div>
         </div>
       </section>
 
@@ -755,6 +900,25 @@ tr:hover td{background:rgba(29,143,255,.075)}
   </nav>
 </div>
 
+
+<div id="ledgerEditModal" class="modal-backdrop hidden">
+  <div class="card modal-card">
+    <div class="card-title">
+      <h3>Editar movimiento</h3>
+      <button class="btn ghost small" id="closeLedgerModal">Cerrar</button>
+    </div>
+    <input id="editLedgerId" type="hidden">
+    <div class="form-grid">
+      <div class="field"><label>Tipo</label><select id="editLedgerType"><option value="income">Ingreso</option><option value="expense">Gasto</option><option value="advance">Aporte personal</option><option value="refund">Devolución</option></select></div>
+      <div class="field"><label>Monto</label><input id="editLedgerAmount" type="number" min="0"></div>
+      <div class="field"><label>Categoría</label><input id="editLedgerCategory"></div>
+      <div class="field"><label>Método</label><input id="editLedgerMethod"></div>
+      <div class="field full"><label>Descripción</label><input id="editLedgerDescription"></div>
+    </div>
+    <div class="actions"><button class="btn" id="saveLedgerEditBtn">Guardar cambios</button></div>
+  </div>
+</div>
+
 <!-- ========== TOAST ========== -->
 <div id="toast" class="toast hidden"></div>
 
@@ -762,6 +926,7 @@ tr:hover td{background:rgba(29,143,255,.075)}
 <script src="config.js"></script>
 
 <!-- ========== SUPABASE ========== -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- ========== APP ========== -->
@@ -850,7 +1015,7 @@ function countUp(el,target,prefix="",suffix=""){
   requestAnimationFrame(step);
 }
 
-let state={session:null,profile:null,players:[],playerTotals:[],tournaments:[],ledger:[],events:[],matchRoster:[],playerFilter:"all"};
+let state={session:null,profile:null,players:[],playerTotals:[],tournaments:[],ledger:[],events:[],matchRoster:[],playerFilter:"all",clubRanking:[],tournamentRanking:[],standingsVersions:[],standingsRows:[],standingsDraft:[],parsedResults:[]};
 
 /* ---------- DATOS DEMO — Planteles reales ---------- */
 const DEMO_PLAYERS=[
@@ -918,6 +1083,16 @@ function showView(id){
   if(id==="matchday")refreshMatchSetup();
   window.scrollTo({top:0,behavior:"smooth"});
 }
+
+/* Fallback de navegación: evita que un botón quede muerto si cambia el HTML. */
+document.addEventListener("click",e=>{
+  const viewBtn=e.target.closest("[data-view]");
+  if(viewBtn && viewBtn.dataset.view){
+    e.preventDefault();
+    showView(viewBtn.dataset.view);
+  }
+});
+
 document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
 
 /* ---------- Boot ---------- */
@@ -974,21 +1149,34 @@ async function enterApp(){
 async function loadAll(){
   if(!configured){
     state.players=DEMO_PLAYERS;state.playerTotals=DEMO_PLAYERS;state.tournaments=DEMO_TOURNAMENTS;state.ledger=DEMO_LEDGER;state.events=[];
+    state.clubRanking=[...DEMO_PLAYERS].sort((a,b)=>b.goals-a.goals).map((p,i)=>({...p,appearances:p.matches_played,goals_rank:i+1,has_provisional:false}));
+    state.tournamentRanking=DEMO_PLAYERS.map(p=>({...p,tournament_name:p.branch==="masculino"?"Zona Mixta · B":"Zona Mixta · A",season:"2026",division:p.branch==="masculino"?"B":"A",appearances:p.matches_played,provisional:false}));
+    state.standingsVersions=[];
     renderAll();return;
   }
-  const[playersQ,totalsQ,tourQ,ledgerQ,eventsQ]=await Promise.all([
+  const[playersQ,totalsQ,tourQ,ledgerQ,eventsQ,clubQ,tRankQ,sVersionsQ]=await Promise.all([
     sb.from("players").select("*").order("full_name"),
     sb.from("player_totals").select("*").order("full_name"),
-    sb.from("tournaments").select("*").eq("active",true).order("name"),
+    sb.from("tournaments").select("*").order("name"),
     sb.from("ledger").select("*").order("created_at",{ascending:false}).limit(30),
-    sb.from("fundraising_events").select("*").order("created_at",{ascending:false})
+    sb.from("fundraising_events").select("*").order("created_at",{ascending:false}),
+    sb.from("club_all_time_ranking").select("*").order("goals",{ascending:false}),
+    sb.from("player_tournament_rankings").select("*").order("goals",{ascending:false}),
+    sb.from("standings_versions").select("*").order("snapshot_date",{ascending:false}).order("created_at",{ascending:false})
   ]);
   if(playersQ.error)toast(playersQ.error.message);
-  state.players=playersQ.data||[];state.playerTotals=totalsQ.data||[];state.tournaments=tourQ.data||[];state.ledger=ledgerQ.data||[];state.events=eventsQ.data||[];
+  state.players=playersQ.data||[];
+  state.playerTotals=totalsQ.data||[];
+  state.tournaments=tourQ.data||[];
+  state.ledger=ledgerQ.data||[];
+  state.events=eventsQ.data||[];
+  state.clubRanking=clubQ.data||[];
+  state.tournamentRanking=tRankQ.data||[];
+  state.standingsVersions=sVersionsQ.data||[];
   renderAll();
 }
 
-function renderAll(){renderKpis();renderPlayers();renderFinance();renderEvents();populatePlayerSelects();refreshMatchSetup()}
+function renderAll(){renderKpis();renderPlayers();renderFinance();renderEvents();renderHistory();populatePlayerSelects();refreshMatchSetup()}
 
 /* ---------- KPIs con count-up ---------- */
 function renderKpis(){
@@ -1011,6 +1199,169 @@ function renderKpis(){
   $("kpiCash").className="value "+(cashVal>=0?"green":"red");
   $("finBalance").className="value "+(cashVal>=0?"green":"red");
 }
+
+
+/* ---------- HISTORIA DEL CLUB / RANKINGS ---------- */
+function renderHistory(){
+  const ranking=[...state.clubRanking].sort((a,b)=>Number(b.goals)-Number(a.goals)||String(a.full_name).localeCompare(String(b.full_name)));
+  const top=ranking[0];
+  if($("histTopScorer"))$("histTopScorer").textContent=top?top.full_name:"—";
+  if($("histTopScorerGoals"))$("histTopScorerGoals").textContent=top?`${top.goals} goles · ${top.appearances||0} PJ`:"Sin datos";
+  if($("histGoalsTotal"))$("histGoalsTotal").textContent=ranking.reduce((s,x)=>s+Number(x.goals||0),0);
+  const editions=[...new Set(state.tournamentRanking.map(x=>`${x.tournament_name}||${x.season}||${x.division||""}`))];
+  if($("histTournamentCount"))$("histTournamentCount").textContent=editions.length;
+  if($("histStandingsCount"))$("histStandingsCount").textContent=state.standingsVersions.length;
+
+  const podium=$("historyPodium");
+  if(podium){
+    const order=[1,0,2];
+    podium.innerHTML=order.map((sourceIdx,displayIdx)=>{
+      const p=ranking[sourceIdx];
+      if(!p)return '<div></div>';
+      const place=sourceIdx+1;
+      return `<div class="podium-card p${place}">
+        <div class="podium-place">${place===1?"👑":place===2?"🥈":"🥉"}</div>
+        <div class="podium-name">${esc(p.full_name)}</div>
+        <div class="podium-goals">${p.goals}</div>
+        <div class="sub">goles · ${p.appearances||0} PJ</div>
+      </div>`;
+    }).join("");
+  }
+  const list=$("historyTopList");
+  if(list){
+    list.innerHTML=ranking.slice(0,8).map((p,i)=>`<div class="item"><div><b>#${i+1} ${esc(p.full_name)}</b><div class="meta">${p.branch} · ${p.appearances||0} PJ${p.has_provisional?" · incluye dato provisional":""}</div></div><div class="amount">${p.goals} ⚽</div></div>`).join("")||'<div class="empty">Sin historial.</div>';
+  }
+
+  const sel=$("historyTournamentSelect");
+  if(sel){
+    const current=sel.value;
+    const opts=editions.map(k=>{
+      const [name,season,division]=k.split("||");
+      return {k,label:`${name} · ${season}${division?" · "+division:""}`};
+    });
+    sel.innerHTML=opts.map(o=>`<option value="${esc(o.k)}">${esc(o.label)}</option>`).join("");
+    if(opts.some(o=>o.k===current))sel.value=current;
+    renderTournamentRanking();
+  }
+
+  populateStandingsTournamentSelects();
+  renderStandingsVersions();
+}
+
+function renderTournamentRanking(){
+  const sel=$("historyTournamentSelect"); if(!sel)return;
+  const key=sel.value,branch=$("historyBranchSelect")?.value||"all";
+  const [name,season,division]=key.split("||");
+  const rows=state.tournamentRanking
+    .filter(x=>x.tournament_name===name&&String(x.season)===season&&String(x.division||"")===division)
+    .filter(x=>branch==="all"||x.branch===branch)
+    .sort((a,b)=>Number(b.goals)-Number(a.goals)||Number(b.appearances)-Number(a.appearances));
+  $("historyTournamentBody").innerHTML=rows.map((p,i)=>`<tr>
+    <td><span class="rank">${i+1}</span></td>
+    <td><b>${esc(p.full_name)}</b></td><td>${p.branch}</td>
+    <td>${p.appearances||0}</td><td><b>${p.goals||0}</b></td>
+    <td>${p.yellow_cards||0}</td><td>${p.red_cards||0}</td>
+    <td><span class="badge ${p.provisional?"warn":"ok"}">${p.provisional?"Provisional":p.source==="live"?"En vivo":"Histórico"}</span></td>
+  </tr>`).join("")||'<tr><td colspan="8"><div class="empty">Sin datos para esta edición.</div></td></tr>';
+}
+$("historyTournamentSelect")?.addEventListener("change",renderTournamentRanking);
+$("historyBranchSelect")?.addEventListener("change",renderTournamentRanking);
+
+function populateStandingsTournamentSelects(){
+  const opts=state.tournaments.map(t=>`<option value="${t.id}">${esc(t.name)} · ${t.branch}${t.division?" · "+esc(t.division):""} · ${esc(t.season)}</option>`).join("");
+  for(const id of ["standingsTournamentSelect","standingsEditTournament","resultImportTournament"]){
+    const el=$(id); if(!el)continue;
+    const old=el.value; el.innerHTML=opts;
+    if([...el.options].some(o=>o.value===old))el.value=old;
+  }
+}
+
+async function renderStandingsVersions(){
+  const tsel=$("standingsTournamentSelect"); if(!tsel)return;
+  const tid=tsel.value;
+  const versions=state.standingsVersions.filter(v=>v.tournament_id===tid);
+  const vsel=$("standingsVersionSelect");
+  vsel.innerHTML=versions.map(v=>`<option value="${v.id}">${esc(v.round_label||"Sin etiqueta")} · ${v.snapshot_date}</option>`).join("");
+  $("standingsTimeline").innerHTML=versions.map((v,i)=>`<button data-version="${v.id}" class="${i===0?"active":""}">${esc(v.round_label||v.snapshot_date)} · ${v.snapshot_date}</button>`).join("");
+  document.querySelectorAll("[data-version]").forEach(b=>b.addEventListener("click",()=>{
+    vsel.value=b.dataset.version;
+    document.querySelectorAll("[data-version]").forEach(x=>x.classList.toggle("active",x===b));
+    loadStandingsRows(b.dataset.version);
+  }));
+  if(versions.length)await loadStandingsRows(vsel.value);
+  else $("standingsBody").innerHTML='<tr><td colspan="10"><div class="empty">Todavía no hay fotos de tabla para este torneo.</div></td></tr>';
+}
+$("standingsTournamentSelect")?.addEventListener("change",renderStandingsVersions);
+$("standingsVersionSelect")?.addEventListener("change",e=>loadStandingsRows(e.target.value));
+
+async function loadStandingsRows(versionId){
+  if(!versionId)return;
+  let rows=[];
+  if(configured){
+    const{data,error}=await sb.from("standings_rows").select("*").eq("version_id",versionId).order("position");
+    if(error){toast(error.message);return}
+    rows=data||[];
+  }
+  state.standingsRows=rows;
+  $("standingsBody").innerHTML=rows.map(r=>`<tr class="${String(r.team_name).toUpperCase().includes("MANCHESTER")?"promo":""}">
+    <td><span class="rank">${r.position}</span></td><td><b>${esc(r.team_name)}</b></td>
+    <td>${r.played}</td><td>${r.wins}</td><td>${r.draws}</td><td>${r.losses}</td>
+    <td>${r.goals_for}</td><td>${r.goals_against}</td><td>${Number(r.goal_difference)>0?"+":""}${r.goal_difference}</td><td><b>${r.points}</b></td>
+  </tr>`).join("")||'<tr><td colspan="10"><div class="empty">Sin filas.</div></td></tr>';
+}
+
+$("newStandingsBtn")?.addEventListener("click",()=>{
+  $("standingsEditorCard").classList.remove("hidden");
+  $("standingsSnapshotDate").value=new Date().toISOString().slice(0,10);
+  state.standingsDraft=state.standingsRows.length
+    ? state.standingsRows.map(r=>({position:r.position,team_name:r.team_name,played:r.played,wins:r.wins,draws:r.draws,losses:r.losses,goals_for:r.goals_for,goals_against:r.goals_against,points:r.points}))
+    : [{position:1,team_name:"MANCHESTER",played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0,points:0}];
+  renderStandingsEditor();
+});
+$("closeStandingsEditor")?.addEventListener("click",()=>$("standingsEditorCard").classList.add("hidden"));
+$("addStandingsRowBtn")?.addEventListener("click",()=>{
+  state.standingsDraft.push({position:state.standingsDraft.length+1,team_name:"",played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0,points:0});
+  renderStandingsEditor();
+});
+
+function renderStandingsEditor(){
+  $("standingsEditorRows").innerHTML=state.standingsDraft.map((r,i)=>`<div class="standing-row-edit">
+    <input data-sr="${i}:position" type="number" min="1" value="${r.position}">
+    <input data-sr="${i}:team_name" value="${esc(r.team_name)}" placeholder="Equipo">
+    <input data-sr="${i}:played" class="mobile-hide" type="number" min="0" value="${r.played}">
+    <input data-sr="${i}:wins" type="number" min="0" value="${r.wins}">
+    <input data-sr="${i}:draws" class="mobile-hide" type="number" min="0" value="${r.draws}">
+    <input data-sr="${i}:losses" class="mobile-hide" type="number" min="0" value="${r.losses}">
+    <input data-sr="${i}:goals_for" class="hide-sm mobile-hide" type="number" min="0" value="${r.goals_for}">
+    <input data-sr="${i}:goals_against" class="hide-sm mobile-hide" type="number" min="0" value="${r.goals_against}">
+    <input data-sr="${i}:points" type="number" min="0" value="${r.points}">
+  </div>`).join("");
+  document.querySelectorAll("[data-sr]").forEach(el=>el.addEventListener("input",()=>{
+    const[i,k]=el.dataset.sr.split(":");
+    state.standingsDraft[+i][k]=k==="team_name"?el.value:Number(el.value)||0;
+  }));
+}
+
+$("saveStandingsBtn")?.addEventListener("click",async()=>{
+  if(!configured){toast("Conectá Supabase para guardar historial real.");return}
+  const rows=state.standingsDraft.filter(r=>r.team_name.trim()).map((r,i)=>({...r,position:Number(r.position)||i+1}));
+  if(!rows.length){toast("Agregá al menos un equipo.");return}
+  const {data,error}=await sb.rpc("save_standings_snapshot",{
+    p_tournament_id:$("standingsEditTournament").value,
+    p_round_label:$("standingsRoundLabel").value.trim()||"Actualización",
+    p_snapshot_date:$("standingsSnapshotDate").value||null,
+    p_rows:rows,
+    p_notes:$("standingsNotes").value.trim()||null
+  });
+  if(error){toast(error.message);return}
+  toast("Tabla guardada como nueva versión histórica.");
+  $("standingsEditorCard").classList.add("hidden");
+  const q=await sb.from("standings_versions").select("*").order("snapshot_date",{ascending:false}).order("created_at",{ascending:false});
+  state.standingsVersions=q.data||[];
+  $("standingsTournamentSelect").value=$("standingsEditTournament").value;
+  renderHistory();
+});
+
 
 /* ---------- Plantel ---------- */
 function renderPlayers(){
@@ -1096,7 +1447,21 @@ function updatePresentSummary(){
 
 /* ---------- Finanzas ---------- */
 function renderFinance(){
-  $("ledgerList").innerHTML=state.ledger.length?state.ledger.map((m,i)=>`<div class="item" style="animation:slideInRight .4s ease both;animation-delay:${i*50}ms"><div><b>${esc(m.description||m.category)}</b><div class="meta">${m.entry_date||""} · ${esc(m.category)}${m.payment_method?" · "+esc(m.payment_method):""}</div></div><div class="amount ${m.type==="expense"||m.type==="refund"?"red":m.type==="advance"?"gold":"green"}">${m.type==="expense"||m.type==="refund"?"−":"+"}${money(m.amount)}</div></div>`).join(""):'<div class="empty">Sin movimientos todavía.</div>';
+  const list=$("ledgerList");
+  if(!list)return;
+  list.innerHTML=state.ledger.length?state.ledger.map(m=>`<div class="item">
+    <div>
+      <b>${esc(m.description||m.category)}</b>
+      <div class="meta">${m.entry_date||""} · ${esc(m.category)}${m.payment_method?" · "+esc(m.payment_method):""}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="amount ${m.type==="expense"||m.type==="refund"?"red":m.type==="advance"?"gold":"green"}">${m.type==="expense"||m.type==="refund"?"−":"+"}${money(m.amount)}</div>
+      <div class="finance-actions">
+        <button class="btn ghost small" data-edit-ledger="${m.id}">Editar</button>
+        <button class="btn red small" data-delete-ledger="${m.id}">Borrar</button>
+      </div>
+    </div>
+  </div>`).join(""):'<div class="empty">Sin movimientos todavía.</div>';
 }
  $("saveFinanceBtn").addEventListener("click",async()=>{
   if(!configured){toast("Conectá Supabase para registrar finanzas.");return}
@@ -1132,6 +1497,186 @@ function renderEvents(){
 const today=new Date().toISOString().split("T")[0];
 if($("matchDate"))$("matchDate").value=today;
 if($("evDate"))$("evDate").value=today;
+
+
+/* ============================================================
+   V5 — RESULTADOS AUTOMÁTICOS + FINANZAS EDITABLES
+   ============================================================ */
+function normalizeResultText(s){
+  return String(s||"")
+    .replace(/[–—]/g,"-")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function parseCompetitionResults(raw){
+  const lines=String(raw||"")
+    .split(/\n+/)
+    .map(x=>normalizeResultText(x))
+    .filter(Boolean);
+
+  const found=[];
+  const patterns=[
+    /^(.+?)\s+(\d{1,2})\s*[-xX:]\s*(\d{1,2})\s+(.+)$/,
+    /^(.+?)\s+(\d{1,2})\s+(\d{1,2})\s+(.+)$/
+  ];
+
+  for(const line of lines){
+    let match=null;
+    for(const p of patterns){
+      const m=line.match(p);
+      if(m){match=m;break}
+    }
+    if(!match)continue;
+
+    const home=match[1].replace(/^[^\p{L}\p{N}]+/u,"").trim();
+    const hg=Number(match[2]);
+    const ag=Number(match[3]);
+    const away=match[4].replace(/[^\p{L}\p{N}]+$/u,"").trim();
+
+    if(home && away && home.length>1 && away.length>1 && hg>=0 && ag>=0){
+      found.push({home_team:home,home_goals:hg,away_goals:ag,away_team:away});
+    }
+  }
+  return found;
+}
+
+function renderParsedResults(){
+  const box=$("parsedResultsEditor"); if(!box)return;
+  $("parsedResultCount").textContent=`${state.parsedResults.length} partidos`;
+  box.innerHTML=state.parsedResults.length?state.parsedResults.map((r,i)=>`<div class="result-row">
+    <input data-result="${i}:home_team" value="${esc(r.home_team)}" placeholder="Local">
+    <input data-result="${i}:home_goals" type="number" min="0" value="${r.home_goals}">
+    <div class="vs">VS</div>
+    <input data-result="${i}:away_goals" type="number" min="0" value="${r.away_goals}">
+    <input data-result="${i}:away_team" value="${esc(r.away_team)}" placeholder="Visitante">
+    <button class="btn red small" data-remove-result="${i}">×</button>
+  </div>`).join(""):'<div class="empty">Todavía no detectamos resultados.</div>';
+
+  document.querySelectorAll("[data-result]").forEach(el=>el.addEventListener("input",()=>{
+    const[i,k]=el.dataset.result.split(":");
+    state.parsedResults[+i][k]=k.includes("goals")?Number(el.value)||0:el.value;
+  }));
+  document.querySelectorAll("[data-remove-result]").forEach(btn=>btn.addEventListener("click",()=>{
+    state.parsedResults.splice(Number(btn.dataset.removeResult),1);
+    renderParsedResults();
+  }));
+}
+
+$("parseResultsBtn")?.addEventListener("click",()=>{
+  const parsed=parseCompetitionResults($("resultRawText").value);
+  if(!parsed.length){toast("No detecté partidos. Probá formato: EQUIPO 3 - 1 EQUIPO.");return}
+  state.parsedResults=parsed;
+  renderParsedResults();
+});
+
+$("addResultRowBtn")?.addEventListener("click",()=>{
+  state.parsedResults.push({home_team:"",home_goals:0,away_goals:0,away_team:""});
+  renderParsedResults();
+});
+
+$("resultImageInput")?.addEventListener("change",async e=>{
+  const file=e.target.files?.[0]; if(!file)return;
+  if(!window.Tesseract){toast("No pudo cargar el OCR. Podés pegar el texto manualmente.");return}
+
+  $("ocrStatus").classList.remove("hidden");
+  $("ocrStatusText").textContent="Leyendo captura...";
+  $("ocrProgress").style.width="4%";
+
+  try{
+    const result=await Tesseract.recognize(file,"spa+eng",{
+      logger:m=>{
+        if(m.status){
+          $("ocrStatusText").textContent=m.status;
+          if(typeof m.progress==="number")$("ocrProgress").style.width=Math.round(m.progress*100)+"%";
+        }
+      }
+    });
+    const text=result.data?.text||"";
+    $("resultRawText").value=text;
+    const parsed=parseCompetitionResults(text);
+    state.parsedResults=parsed;
+    renderParsedResults();
+    $("ocrStatusText").textContent=parsed.length?`Listo: ${parsed.length} partidos detectados. Revisalos antes de guardar.`:"OCR listo, pero no pude separar partidos. Corregí el texto manualmente.";
+    $("ocrProgress").style.width="100%";
+  }catch(err){
+    console.error(err);
+    $("ocrStatusText").textContent="No pude leer la imagen. Pegá los resultados manualmente.";
+    toast("Falló el OCR; podés usar el texto manual.");
+  }
+});
+
+$("saveImportedResultsBtn")?.addEventListener("click",async()=>{
+  if(!configured){toast("Conectá Supabase para guardar resultados.");return}
+  const rows=state.parsedResults.filter(r=>r.home_team.trim()&&r.away_team.trim());
+  if(!rows.length){toast("No hay resultados para guardar.");return}
+
+  const {data,error}=await sb.rpc("import_competition_results",{
+    p_tournament_id:$("resultImportTournament").value,
+    p_round_label:$("resultImportRound").value.trim()||"Resultados importados",
+    p_match_date:$("resultImportDate").value||null,
+    p_rows:rows,
+    p_source_text:$("resultRawText").value.slice(0,10000)
+  });
+  if(error){toast(error.message);return}
+
+  toast("Resultados guardados. Tabla recalculada automáticamente.");
+  state.parsedResults=[];
+  renderParsedResults();
+  $("resultRawText").value="";
+
+  const sv=await sb.from("standings_versions").select("*").order("snapshot_date",{ascending:false}).order("created_at",{ascending:false});
+  state.standingsVersions=sv.data||[];
+  $("standingsTournamentSelect").value=$("resultImportTournament").value;
+  await renderStandingsVersions();
+});
+
+/* ---------- EDICIÓN DE FINANZAS ---------- */
+document.addEventListener("click",async e=>{
+  const edit=e.target.closest("[data-edit-ledger]");
+  if(edit){
+    const m=state.ledger.find(x=>x.id===edit.dataset.editLedger);
+    if(!m)return;
+    $("editLedgerId").value=m.id;
+    $("editLedgerType").value=m.type;
+    $("editLedgerAmount").value=m.amount;
+    $("editLedgerCategory").value=m.category||"";
+    $("editLedgerMethod").value=m.payment_method||"";
+    $("editLedgerDescription").value=m.description||"";
+    $("ledgerEditModal").classList.remove("hidden");
+    return;
+  }
+
+  const del=e.target.closest("[data-delete-ledger]");
+  if(del){
+    if(!confirm("¿Borrar este movimiento?"))return;
+    const {error}=await sb.rpc("delete_ledger_entry",{p_id:del.dataset.deleteLedger});
+    if(error){toast(error.message);return}
+    toast("Movimiento eliminado.");
+    await loadAll();
+  }
+});
+
+$("closeLedgerModal")?.addEventListener("click",()=>$("ledgerEditModal").classList.add("hidden"));
+
+$("saveLedgerEditBtn")?.addEventListener("click",async()=>{
+  const id=$("editLedgerId").value;
+  const amount=Number($("editLedgerAmount").value)||0;
+  const {error}=await sb.rpc("update_ledger_entry",{
+    p_id:id,
+    p_type:$("editLedgerType").value,
+    p_category:$("editLedgerCategory").value.trim()||"Otro",
+    p_description:$("editLedgerDescription").value.trim()||null,
+    p_amount:amount,
+    p_method:$("editLedgerMethod").value.trim()||null
+  });
+  if(error){toast(error.message);return}
+  $("ledgerEditModal").classList.add("hidden");
+  toast("Movimiento actualizado.");
+  await loadAll();
+});
+
+renderParsedResults();
 
 boot();
 </script>
