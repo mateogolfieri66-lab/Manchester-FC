@@ -2,7 +2,10 @@
   "mcpServers": {
     "firecrawl": {
       "command": "npx",
-      "args": ["-y", "firecrawl-mcp@3.38.0"]
+      "args": ["-y", "firecrawl-mcp@3.38.0"],
+      "env": {
+        "NODE_USE_ENV_PROXY": "1"
+      }
     }
   }
 }
